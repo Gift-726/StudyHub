@@ -55,33 +55,33 @@ const SignUp = () => {
       </div>
 
       {/* Right side with form */}
-      <div className="flex-1 flex flex-col bg-[#faf9f6] px-8 md:px-12 lg:px-16 h-screen overflow-y-auto mt-7">
-        {/* Content - centered vertically */}
-        <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex flex-col bg-[#faf9f6] px-4 sm:px-6 md:px-12 lg:px-16 h-screen overflow-y-auto">
+        {/* Content - start from top on mobile, center on desktop */}
+        <div className="flex-1 flex items-start lg:items-center justify-center pt-4 sm:pt-6 lg:pt-0 pb-4 sm:pb-6">
           <div className="max-w-md w-full">
             {/* Header - aligned with form content */}
-            <div className="flex justify-between items-center mb-7">
+            <div className="flex justify-between items-center mb-6 sm:mb-7">
               <img 
                 src={logoWithText} 
                 alt="Studyhub" 
-                className="h-10 w-auto" 
+                className="h-8 sm:h-10 w-auto" 
               />
               <Link 
                 to="/login" 
-                className="text-black text-base font-normal hover:opacity-70 transition-opacity"
+                className="text-sm sm:text-base text-black font-normal hover:opacity-70 transition-opacity"
               >
                 Log in
               </Link>
             </div>
 
-            <h1 className="text-3xl md:text-4xl font-bold text-black mb-7">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-6 sm:mb-7 leading-tight">
               Create an Account
             </h1>
 
-            <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+            <form className="flex flex-col gap-4 sm:gap-6" onSubmit={handleSubmit}>
               {/* Email */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="email" className="text-sm font-medium text-black">
+                <label htmlFor="email" className="text-sm font-medium text-black leading-normal">
                   Email
                 </label>
                 <input
@@ -91,14 +91,14 @@ const SignUp = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-black rounded bg-white text-black text-base placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors"
+                  className="w-full px-4 py-2.5 sm:py-3 border border-black rounded bg-white text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors leading-normal"
                   placeholder="Enter your email"
                 />
               </div>
 
               {/* Password */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="password" className="text-sm font-medium text-black">
+                <label htmlFor="password" className="text-sm font-medium text-black leading-normal">
                   Password
                 </label>
                 <div className="relative">
@@ -110,7 +110,7 @@ const SignUp = () => {
                     minLength={6}
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 pr-12 border border-black rounded bg-white text-black text-base placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors"
+                    className="w-full px-4 py-2.5 sm:py-3 pr-12 border border-black rounded bg-white text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors leading-normal"
                     placeholder="Enter your password"
                   />
                   <button
@@ -135,7 +135,7 @@ const SignUp = () => {
 
               {/* First Name */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="firstName" className="text-sm font-medium text-black">
+                <label htmlFor="firstName" className="text-sm font-medium text-black leading-normal">
                   First Name
                 </label>
                 <input
@@ -145,14 +145,14 @@ const SignUp = () => {
                   required
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-black rounded bg-white text-black text-base placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors"
+                  className="w-full px-4 py-2.5 sm:py-3 border border-black rounded bg-white text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors leading-normal"
                   placeholder="Enter your first name"
                 />
               </div>
 
               {/* Last Name */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="lastName" className="text-sm font-medium text-black">
+                <label htmlFor="lastName" className="text-sm font-medium text-black leading-normal">
                   Last Name
                 </label>
                 <input
@@ -162,13 +162,13 @@ const SignUp = () => {
                   required
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-black rounded bg-white text-black text-base placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors"
+                  className="w-full px-4 py-2.5 sm:py-3 border border-black rounded bg-white text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors leading-normal"
                   placeholder="Enter your last name"
                 />
               </div>
 
               {/* Terms */}
-              <p className="text-xs text-gray-600 mt-2">
+              <p className="text-xs text-gray-600 mt-2 leading-relaxed">
                 By creating an account you are agreeing to the Terms of Service and Privacy Policy
               </p>
 
@@ -176,7 +176,7 @@ const SignUp = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-black text-white rounded border-none text-base font-medium cursor-pointer hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2 mb-10"
+                className="w-full py-3 sm:py-3.5 bg-black text-white rounded border-none text-base font-medium cursor-pointer hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2 mb-6 sm:mb-10 leading-normal"
               >
                 {loading ? 'Creating Account...' : 'Create Account'}
               </button>

@@ -11,10 +11,20 @@
   
   body {
     @apply font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   
   #root {
     @apply w-full min-h-screen;
+  }
+  
+  /* Fix font rendering on mobile */
+  input, textarea, select, button {
+    font-family: inherit;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 

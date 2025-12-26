@@ -55,33 +55,33 @@ const Login = () => {
       </div>
 
       {/* Right side with form */}
-      <div className="flex-1 flex flex-col bg-[#faf9f6] px-8 md:px-12 lg:px-16 h-screen overflow-y-auto">
-        {/* Content - centered vertically */}
-        <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex flex-col bg-[#faf9f6] px-4 sm:px-6 md:px-12 lg:px-16 h-screen overflow-y-auto">
+        {/* Content - start from top on mobile, center on desktop */}
+        <div className="flex-1 flex items-start lg:items-center justify-center pt-4 sm:pt-6 lg:pt-0 pb-4 sm:pb-6">
           <div className="max-w-md w-full">
             {/* Header - aligned with form content */}
-            <div className="flex justify-between items-center mb-10">
+            <div className="flex justify-between items-center mb-6 sm:mb-10">
               <img 
                 src={logoWithText} 
                 alt="Studyhub" 
-                className="h-10 w-auto" 
+                className="h-8 sm:h-10 w-auto" 
               />
               <Link 
                 to="/signup" 
-                className="text-black text-base font-normal hover:opacity-70 transition-opacity"
+                className="text-sm sm:text-base text-black font-normal hover:opacity-70 transition-opacity"
               >
                 Create Account
               </Link>
             </div>
 
-            <h1 className="text-3xl md:text-4xl font-bold text-black mb-10">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-6 sm:mb-10 leading-tight">
               Sign in
             </h1>
 
-            <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+            <form className="flex flex-col gap-4 sm:gap-6" onSubmit={handleSubmit}>
               {/* Email */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="email" className="text-sm font-medium text-black">
+                <label htmlFor="email" className="text-sm font-medium text-black leading-normal">
                   Email
                 </label>
                 <input
@@ -91,14 +91,14 @@ const Login = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-black rounded bg-white text-black text-base placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors"
+                  className="w-full px-4 py-2.5 sm:py-3 border border-black rounded bg-white text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors leading-normal"
                   placeholder="Enter your email"
                 />
               </div>
 
               {/* Password */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="password" className="text-sm font-medium text-black">
+                <label htmlFor="password" className="text-sm font-medium text-black leading-normal">
                   Password
                 </label>
                 <div className="relative">
@@ -109,7 +109,7 @@ const Login = () => {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 pr-12 border border-black rounded bg-white text-black text-base placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors"
+                    className="w-full px-4 py-2.5 sm:py-3 pr-12 border border-black rounded bg-white text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors leading-normal"
                     placeholder="Enter your password"
                   />
                   <button
@@ -134,19 +134,19 @@ const Login = () => {
 
               {/* Remember Me and Forgot Password */}
               <div className="flex justify-between items-center -mt-2">
-                <label className="flex items-center gap-2 text-sm text-black cursor-pointer">
+                <label className="flex items-center gap-2 text-sm text-black cursor-pointer leading-normal">
                   <input
                     type="checkbox"
                     name="rememberMe"
                     checked={formData.rememberMe}
                     onChange={handleChange}
-                    className="w-4.5 h-4.5 cursor-pointer"
+                    className="w-4 h-4 sm:w-4.5 sm:h-4.5 cursor-pointer"
                   />
                   <span>Remember Me</span>
                 </label>
                 <Link 
                   to="/forgot-password" 
-                  className="text-sm text-black hover:opacity-70 transition-opacity"
+                  className="text-xs sm:text-sm text-black hover:opacity-70 transition-opacity leading-normal"
                 >
                   Forgot Password?
                 </Link>
@@ -156,13 +156,13 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-black text-white rounded border-none text-base font-medium cursor-pointer hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2"
+                className="w-full py-3 sm:py-3.5 bg-black text-white rounded border-none text-base font-medium cursor-pointer hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2 leading-normal"
               >
                 {loading ? 'Logging in...' : 'Log in'}
               </button>
 
               {/* Terms */}
-              <p className="text-xs text-gray-600 text-center mt-4">
+              <p className="text-xs text-gray-600 text-center mt-4 leading-relaxed">
                 Terms of Service and Privacy Policy
               </p>
             </form>
