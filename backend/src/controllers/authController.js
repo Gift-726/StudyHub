@@ -22,7 +22,7 @@ const register = async (req, res) => {
       })
     }
 
-    const { email, password, firstName, lastName } = req.body
+    const { email, password, fullName, faculty, department, level } = req.body
 
     // Check if user exists
     const userExists = await User.findOne({ email })
@@ -34,16 +34,20 @@ const register = async (req, res) => {
     const user = await User.create({
       email,
       password,
-      firstName,
-      lastName,
+      fullName,
+      faculty,
+      department,
+      level,
     })
 
     if (user) {
       res.status(201).json({
         _id: user._id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        fullName: user.fullName,
+        faculty: user.faculty,
+        department: user.department,
+        level: user.level,
         token: generateToken(user._id),
       })
     } else {
@@ -89,8 +93,10 @@ const login = async (req, res) => {
     res.json({
       _id: user._id,
       email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      fullName: user.fullName,
+      faculty: user.faculty,
+      department: user.department,
+      level: user.level,
       token: generateToken(user._id),
     })
   } catch (error) {

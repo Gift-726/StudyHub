@@ -2,26 +2,42 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
-import logoWithText from '../assets/logoWithText.png'
+import logo from '../assets/logo.png'
 import authBg from '../assets/authBg.png'
+import { faculties, levels } from '../utils/faculties'
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    firstName: '',
-    lastName: '',
+    fullName: '',
+    faculty: '',
+    department: '',
+    level: '',
   })
   const [showPassword, setShowPassword] = useState(false)
+  const [availableDepartments, setAvailableDepartments] = useState([])
   const { register } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
+    const { name, value } = e.target
+    
+    if (name === 'faculty') {
+      // When faculty changes, update available departments and reset department
+      setFormData({
+        ...formData,
+        faculty: value,
+        department: '', // Reset department when faculty changes
+      })
+      setAvailableDepartments(faculties[value] || [])
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      })
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -61,11 +77,14 @@ const SignUp = () => {
           <div className="max-w-md w-full">
             {/* Header - aligned with form content */}
             <div className="flex justify-between items-center mb-6 sm:mb-7">
-              <img 
-                src={logoWithText} 
-                alt="Studyhub" 
-                className="h-8 sm:h-10 w-auto" 
-              />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <img 
+                  src={logo} 
+                  alt="Studyhub logo" 
+                  className="h-8 sm:h-10 w-auto" 
+                />
+                <span className="text-lg sm:text-xl font-bold text-black">StudyHub</span>
+              </div>
               <Link 
                 to="/login" 
                 className="text-sm sm:text-base text-black font-normal hover:opacity-70 transition-opacity"
@@ -133,38 +152,114 @@ const SignUp = () => {
                 </div>
               </div>
 
-              {/* First Name */}
+              {/* Full Name */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="firstName" className="text-sm font-medium text-black leading-normal">
-                  First Name
+                <label htmlFor="fullName" className="text-sm font-medium text-black leading-normal">
+                  Full Name
                 </label>
                 <input
-                  id="firstName"
-                  name="firstName"
+                  id="fullName"
+                  name="fullName"
                   type="text"
                   required
-                  value={formData.firstName}
+                  value={formData.fullName}
                   onChange={handleChange}
                   className="w-full px-4 py-2.5 sm:py-3 border border-black rounded bg-white text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors leading-normal"
-                  placeholder="Enter your first name"
+                  placeholder="Enter your full name"
                 />
               </div>
 
-              {/* Last Name */}
+              {/* Faculty */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="lastName" className="text-sm font-medium text-black leading-normal">
-                  Last Name
+                <label htmlFor="faculty" className="text-sm font-medium text-black leading-normal">
+                  Select Faculty
                 </label>
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  required
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2.5 sm:py-3 border border-black rounded bg-white text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors leading-normal"
-                  placeholder="Enter your last name"
-                />
+                <div className="relative">
+                  <select
+                    id="faculty"
+                    name="faculty"
+                    required
+                    value={formData.faculty}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 sm:py-3 pr-10 border border-black rounded bg-white text-base text-black focus:outline-none focus:border-gray-700 transition-colors leading-normal appearance-none cursor-pointer"
+                  >
+                    <option value="">Select Faculty</option>
+                    {Object.keys(faculties).map((faculty) => (
+                      <option key={faculty} value={faculty}>
+                        {faculty}
+                      </option>
+                    ))}
+                  </select>
+                  {/* Custom dropdown arrow */}
+                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Department */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="department" className="text-sm font-medium text-black leading-normal">
+                  Select Department
+                </label>
+                <div className="relative">
+                  <select
+                    id="department"
+                    name="department"
+                    required
+                    value={formData.department}
+                    onChange={handleChange}
+                    disabled={!formData.faculty || availableDepartments.length === 0}
+                    className="w-full px-4 py-2.5 sm:py-3 pr-10 border border-black rounded bg-white text-base text-black focus:outline-none focus:border-gray-700 transition-colors leading-normal appearance-none cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <option value="">
+                      {formData.faculty ? 'Select Department' : 'Select Faculty first'}
+                    </option>
+                    {availableDepartments.map((dept) => (
+                      <option key={dept} value={dept}>
+                        {dept}
+                      </option>
+                    ))}
+                  </select>
+                  {/* Custom dropdown arrow */}
+                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Level */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="level" className="text-sm font-medium text-black leading-normal">
+                  Select Level
+                </label>
+                <div className="relative">
+                  <select
+                    id="level"
+                    name="level"
+                    required
+                    value={formData.level}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 sm:py-3 pr-10 border border-black rounded bg-white text-base text-black focus:outline-none focus:border-gray-700 transition-colors leading-normal appearance-none cursor-pointer"
+                  >
+                    <option value="">Select Level</option>
+                    {levels.map((level) => (
+                      <option key={level} value={level}>
+                        {level}L
+                      </option>
+                    ))}
+                  </select>
+                  {/* Custom dropdown arrow */}
+                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
               </div>
 
               {/* Terms */}

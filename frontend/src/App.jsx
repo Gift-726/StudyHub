@@ -4,6 +4,9 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import SignUp from './pages/SignUp'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+import ForgotPassword from './pages/ForgotPassword'
+import EnterOTP from './pages/EnterOTP'
+import ResetPassword from './pages/ResetPassword'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -67,6 +70,9 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/enter-otp" element={<EnterOTP />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Routes>
         </div>
       </Router>

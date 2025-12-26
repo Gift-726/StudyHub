@@ -14,15 +14,25 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please provide a password'],
     minlength: 6,
   },
-  firstName: {
+  fullName: {
     type: String,
-    required: [true, 'Please provide your first name'],
+    required: [true, 'Please provide your full name'],
     trim: true,
   },
-  lastName: {
+  faculty: {
     type: String,
-    required: [true, 'Please provide your last name'],
+    required: [true, 'Please select your faculty'],
     trim: true,
+  },
+  department: {
+    type: String,
+    required: [true, 'Please select your department'],
+    trim: true,
+  },
+  level: {
+    type: String,
+    required: [true, 'Please select your level'],
+    enum: ['100', '200', '300', '400', '500'],
   },
   createdAt: {
     type: Date,

@@ -14,7 +14,7 @@ const Dashboard = () => {
     <div className="min-h-screen p-10 bg-[#faf9f6]">
       <div className="flex justify-between items-center mb-10">
         <h1 className="text-3xl font-bold text-black">
-          Welcome to Studyhub, {user?.firstName}!
+          Welcome to Studyhub, {user?.fullName?.split(' ')[0] || user?.fullName}!
         </h1>
         <button 
           onClick={handleLogout} 

@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
 import connectDB from './config/db.js'
 import { errorHandler } from './middleware/errorHandler.js'
+import { verifyEmailConfig } from './utils/emailService.js'
 
 // Import routes
 import authRoutes from './routes/authRoutes.js'
@@ -14,6 +15,13 @@ dotenv.config()
 
 // Connect to database
 connectDB()
+
+// Verify email configuration on startup
+if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+  verifyEmailConfig().catch((error) => {
+    console.warn('Email service not configured properly:', error.message)
+  })
+}
 
 const app = express()
 

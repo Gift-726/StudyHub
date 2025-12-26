@@ -12,12 +12,27 @@ PORT=5000
 MONGODB_URI=mongodb://localhost:27017/studyhub
 JWT_SECRET=your_super_secret_jwt_key_here_change_this_in_production
 FRONTEND_URL=http://localhost:3000
+
+# Email Configuration (for password reset)
+# Option 1: Gmail (easiest for development)
+EMAIL_SERVICE=gmail
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASSWORD=your-gmail-app-password
+
+# Option 2: Custom SMTP (uncomment and configure)
+# EMAIL_SERVICE=smtp
+# SMTP_HOST=smtp.your-provider.com
+# SMTP_PORT=587
+# SMTP_SECURE=false
+# EMAIL_USER=your-email@domain.com
+# EMAIL_PASSWORD=your-password
 ```
 
 **Important Notes:**
 - Replace `your_super_secret_jwt_key_here_change_this_in_production` with a strong, random string for production
 - If using MongoDB Atlas, replace `MONGODB_URI` with your Atlas connection string
 - Example Atlas URI: `mongodb+srv://username:password@cluster.mongodb.net/studyhub`
+- **For Email Setup:** See `EMAIL_SETUP.md` for detailed instructions on configuring email (Gmail, SMTP, etc.)
 
 ### Frontend (.env file in `frontend/` directory)
 
