@@ -28,3 +28,17 @@
   }
 }
 
+@layer utilities {
+  .btn-purple {
+    background-color: #4B2E83;
+  }
+  
+  .btn-purple:hover:not(:disabled) {
+    background-color: #3d2469;
+  }
+  
+  .text-purple-brand {
+    color: #4B2E83;
+  }
+}
+

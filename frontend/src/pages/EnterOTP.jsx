@@ -105,7 +105,7 @@ const EnterOTP = () => {
                   alt="Studyhub logo" 
                   className="h-8 sm:h-10 w-auto" 
                 />
-                <span className="text-lg sm:text-xl font-bold text-black">StudyHub</span>
+                <span className="text-lg sm:text-xl font-bold text-purple-brand">StudyHub</span>
               </div>
               <Link 
                 to="/login" 
@@ -138,7 +138,7 @@ const EnterOTP = () => {
                       onChange={(e) => handleChange(index, e.target.value)}
                       onKeyDown={(e) => handleKeyDown(index, e)}
                       onPaste={handlePaste}
-                      className="w-full aspect-square text-center text-xl sm:text-2xl font-bold border-2 border-gray-300 rounded bg-white text-black focus:outline-none focus:border-black transition-colors"
+                      className="w-full aspect-square text-center text-xl sm:text-2xl font-bold border-2 border-gray-300 rounded bg-white text-black focus:outline-none focus:border-[#4B2E83] transition-colors"
                       autoFocus={index === 0}
                     />
                   ))}
@@ -149,7 +149,7 @@ const EnterOTP = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 sm:py-3.5 bg-black text-white rounded border-none text-base font-medium cursor-pointer hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2 leading-normal"
+                className="w-full py-3 sm:py-3.5 btn-purple text-white rounded border-none text-base font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2 leading-normal"
               >
                 {loading ? 'Verifying...' : 'Confirm'}
               </button>

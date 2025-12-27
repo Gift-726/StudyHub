@@ -4,6 +4,10 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import SignUp from './pages/SignUp'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+import Courses from './pages/Courses'
+import Quizzes from './pages/Quizzes'
+import CGPACalculator from './pages/CGPACalculator'
+import Forum from './pages/Forum'
 import ForgotPassword from './pages/ForgotPassword'
 import EnterOTP from './pages/EnterOTP'
 import ResetPassword from './pages/ResetPassword'
@@ -67,6 +71,38 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/courses" 
+              element={
+                <ProtectedRoute>
+                  <Courses />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/quizzes" 
+              element={
+                <ProtectedRoute>
+                  <Quizzes />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/cgpa-calculator" 
+              element={
+                <ProtectedRoute>
+                  <CGPACalculator />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/forum" 
+              element={
+                <ProtectedRoute>
+                  <Forum />
                 </ProtectedRoute>
               } 
             />

@@ -83,7 +83,7 @@ const SignUp = () => {
                   alt="Studyhub logo" 
                   className="h-8 sm:h-10 w-auto" 
                 />
-                <span className="text-lg sm:text-xl font-bold text-black">StudyHub</span>
+                <span className="text-lg sm:text-xl font-bold text-purple-brand">StudyHub</span>
               </div>
               <Link 
                 to="/login" 
@@ -271,7 +271,7 @@ const SignUp = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 sm:py-3.5 bg-black text-white rounded border-none text-base font-medium cursor-pointer hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2 mb-6 sm:mb-10 leading-normal"
+                className="w-full py-3 sm:py-3.5 btn-purple text-white rounded border-none text-base font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2 mb-6 sm:mb-10 leading-normal"
               >
                 {loading ? 'Creating Account...' : 'Create Account'}
               </button>
