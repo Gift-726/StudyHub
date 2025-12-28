@@ -1,0 +1,84 @@
+import Course from '../models/Course.js'
+import Enrollment from '../models/Enrollment.js'
+
+// @desc    Get user's enrolled courses
+// @route   GET /api/courses/my-courses
+// @access  Private
+export const getMyCourses = async (req, res) => {
+  try {
+    const userId = req.user._id
+
+    // Get all enrollments for the user
+    const enrollments = await Enrollment.find({ userId })
+      .populate('courseId')
+      .sort({ enrolledAt: -1 })
+
+    // Format the response
+    const courses = enrollments.map(enrollment => ({
+      _id: enrollment.courseId._id,
+      title: enrollment.courseId.title,
+      description: enrollment.courseId.description,
+      topics: enrollment.courseId.topics || 12, // Default or from course
+      progress: enrollment.progress || 0,
+      units: enrollment.courseId.units || 3, // Default or from course
+      lastActivity: enrollment.updatedAt || enrollment.enrolledAt,
+      image: enrollment.courseId.image || null
+    }))
+
+    res.json(courses)
+  } catch (error) {
+    console.error('Get my courses error:', error)
+    res.status(500).json({ message: 'Server error occurred' })
+  }
+}
+
+// @desc    Get all available courses
+// @route   GET /api/courses
+// @access  Private
+export const getAllCourses = async (req, res) => {
+  try {
+    const courses = await Course.find().sort({ createdAt: -1 })
+    res.json(courses)
+  } catch (error) {
+    console.error('Get all courses error:', error)
+    res.status(500).json({ message: 'Server error occurred' })
+  }
+}
+
+// @desc    Enroll in a course
+// @route   POST /api/courses/:courseId/enroll
+// @access  Private
+export const enrollCourse = async (req, res) => {
+  try {
+    const userId = req.user._id
+    const { courseId } = req.params
+
+    // Check if course exists
+    const course = await Course.findById(courseId)
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' })
+    }
+
+    // Check if already enrolled
+    const existingEnrollment = await Enrollment.findOne({ userId, courseId })
+    if (existingEnrollment) {
+      return res.status(400).json({ message: 'Already enrolled in this course' })
+    }
+
+    // Create enrollment
+    const enrollment = await Enrollment.create({
+      userId,
+      courseId,
+      progress: 0
+    })
+
+    res.status(201).json({
+      message: 'Successfully enrolled in course',
+      enrollment
+    })
+  } catch (error) {
+    console.error('Enroll course error:', error)
+    res.status(500).json({ message: 'Server error occurred' })
+  }
+}
+

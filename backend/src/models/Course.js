@@ -29,6 +29,18 @@ const courseSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  topics: {
+    type: Number,
+    default: 0
+  },
+  units: {
+    type: Number,
+    default: 3
+  },
+  image: {
+    type: String,
+    trim: true
+  },
   createdAt: {
     type: Date,
     default: Date.now

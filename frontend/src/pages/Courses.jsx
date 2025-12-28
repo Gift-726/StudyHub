@@ -1,14 +1,207 @@
+import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
+import CourseCard from '../components/CourseCard'
+import { coursesAPI } from '../services/api'
 
 const Courses = () => {
+  const [courses, setCourses] = useState([])
+  const [filteredCourses, setFilteredCourses] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [activeFilter, setActiveFilter] = useState('all')
+  const [sortBy, setSortBy] = useState('alphabetical')
+
+  // Fetch courses
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true)
+        const response = await coursesAPI.getMyCourses()
+        setCourses(response.data)
+        setFilteredCourses(response.data)
+      } catch (error) {
+        console.error('Error fetching courses:', error)
+        // Set sample data for demo
+        const sampleCourses = [
+          {
+            _id: '1',
+            title: 'Introduction to Mathematics (MTH 101)',
+            topics: 12,
+            progress: 0,
+            units: 3,
+            lastActivity: null,
+            image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop'
+          },
+          {
+            _id: '2',
+            title: 'Organic Chemistry (CHE 101)',
+            topics: 18,
+            progress: 22,
+            units: 3,
+            lastActivity: '2025-12-25',
+            image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400&h=300&fit=crop'
+          }
+        ]
+        setCourses(sampleCourses)
+        setFilteredCourses(sampleCourses)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCourses()
+  }, [])
+
+  // Filter and search courses
+  useEffect(() => {
+    let filtered = [...courses]
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(course =>
+        course.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    }
+
+    // Apply status filter
+    if (activeFilter === 'in-progress') {
+      filtered = filtered.filter(course => course.progress > 0 && course.progress < 100)
+    } else if (activeFilter === 'completed') {
+      filtered = filtered.filter(course => course.progress === 100)
+    }
+
+    // Apply sorting
+    if (sortBy === 'alphabetical') {
+      filtered.sort((a, b) => a.title.localeCompare(b.title))
+    } else if (sortBy === 'progress') {
+      filtered.sort((a, b) => b.progress - a.progress)
+    } else if (sortBy === 'recent') {
+      filtered.sort((a, b) => {
+        const dateA = a.lastActivity ? new Date(a.lastActivity) : new Date(0)
+        const dateB = b.lastActivity ? new Date(b.lastActivity) : new Date(0)
+        return dateB - dateA
+      })
+    }
+
+    setFilteredCourses(filtered)
+  }, [courses, searchQuery, activeFilter, sortBy])
+
+  // Count courses by filter
+  const allCoursesCount = courses.length
+  const inProgressCount = courses.filter(c => c.progress > 0 && c.progress < 100).length
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-lg text-gray-600">Loading courses...</div>
+        </div>
+      </Layout>
+    )
+  }
+
   return (
     <Layout>
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">My Courses</h2>
-        <div className="text-center py-12 text-gray-500">
-          <p className="text-lg">No courses enrolled yet.</p>
-          <p className="text-sm mt-2">Browse available courses to get started!</p>
+      <div>
+        {/* Page Title */}
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Courses</h1>
+
+        {/* Search, Filters, and Sort */}
+        <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-6">
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            {/* Filters */}
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => setActiveFilter('all')}
+                className={`
+                  px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${activeFilter === 'all'
+                    ? 'bg-purple-brand text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }
+                `}
+              >
+                All Courses
+                <span className={`
+                  ml-2 px-2 py-0.5 rounded-full text-xs
+                  ${activeFilter === 'all' ? 'bg-white text-purple-brand' : 'bg-purple-brand text-white'}
+                `}>
+                  {allCoursesCount}
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveFilter('in-progress')}
+                className={`
+                  px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${activeFilter === 'in-progress'
+                    ? 'bg-purple-brand text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }
+                `}
+              >
+                In Progress
+                <span className={`
+                  ml-2 px-2 py-0.5 rounded-full text-xs
+                  ${activeFilter === 'in-progress' ? 'bg-white text-purple-brand' : 'bg-purple-brand text-white'}
+                `}>
+                  {inProgressCount}
+                </span>
+              </button>
+            </div>
+
+            {/* Search Bar */}
+            <div className="flex-1 md:max-w-md">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search Courses..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+                <svg
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Sort Dropdown */}
+            <div className="w-full md:w-auto">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+              >
+                <option value="alphabetical">Alphabetical</option>
+                <option value="progress">Progress</option>
+                <option value="recent">Recent Activity</option>
+              </select>
+            </div>
+          </div>
         </div>
+
+        {/* Course List */}
+        {filteredCourses.length > 0 ? (
+          <div className="space-y-4">
+            {filteredCourses.map((course) => (
+              <CourseCard key={course._id || course.id} course={course} />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+            <p className="text-lg text-gray-500">
+              {searchQuery ? 'No courses found matching your search.' : 'No courses enrolled yet.'}
+            </p>
+            <p className="text-sm text-gray-400 mt-2">
+              {searchQuery ? 'Try adjusting your search or filters.' : 'Browse available courses to get started!'}
+            </p>
+          </div>
+        )}
       </div>
     </Layout>
   )

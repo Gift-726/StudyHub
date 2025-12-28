@@ -48,5 +48,12 @@ export const dashboardAPI = {
   getDashboard: () => api.get('/dashboard'),
 }
 
+// Courses API
+export const coursesAPI = {
+  getMyCourses: () => api.get('/courses/my-courses'),
+  getAllCourses: () => api.get('/courses'),
+  enrollCourse: (courseId) => api.post(`/courses/${courseId}/enroll`),
+}
+
 export default api
 

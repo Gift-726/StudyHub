@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Layout from '../components/Layout'
 
 const CGPACalculator = () => {
@@ -6,6 +6,9 @@ const CGPACalculator = () => {
     { id: 1, name: '', credit: '', grade: '' }
   ])
   const [cgpa, setCgpa] = useState(null)
+  const courseRefs = useRef({})
+  const cgpaResultRef = useRef(null)
+  const lastAddedCourseId = useRef(null)
 
   const gradePoints = {
     'A': 5.0,
@@ -17,8 +20,28 @@ const CGPACalculator = () => {
   }
 
   const handleAddCourse = () => {
-    setCourses([...courses, { id: Date.now(), name: '', credit: '', grade: '' }])
+    const newId = Date.now()
+    lastAddedCourseId.current = newId
+    setCourses([...courses, { id: newId, name: '', credit: '', grade: '' }])
   }
+
+  // Scroll to newly added course
+  useEffect(() => {
+    if (lastAddedCourseId.current && courseRefs.current[lastAddedCourseId.current]) {
+      setTimeout(() => {
+        courseRefs.current[lastAddedCourseId.current]?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        })
+        // Focus on the first input of the new course
+        const firstInput = courseRefs.current[lastAddedCourseId.current]?.querySelector('input')
+        if (firstInput) {
+          firstInput.focus()
+        }
+      }, 100)
+      lastAddedCourseId.current = null
+    }
+  }, [courses])
 
   const handleRemoveCourse = (id) => {
     if (courses.length > 1) {
@@ -48,6 +71,13 @@ const CGPACalculator = () => {
 
     if (totalCredits > 0) {
       setCgpa((totalPoints / totalCredits).toFixed(2))
+      // Scroll to result after a short delay to ensure it's rendered
+      setTimeout(() => {
+        cgpaResultRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        })
+      }, 100)
     } else {
       setCgpa(null)
     }
@@ -60,7 +90,11 @@ const CGPACalculator = () => {
         
         <div className="space-y-4">
           {courses.map((course, index) => (
-            <div key={course.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div 
+              key={course.id} 
+              ref={(el) => (courseRefs.current[course.id] = el)}
+              className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end"
+            >
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Course Name
@@ -134,7 +168,10 @@ const CGPACalculator = () => {
         </div>
 
         {cgpa !== null && (
-          <div className="mt-6 p-6 bg-purple-50 rounded-lg border-2 border-purple-brand">
+          <div 
+            ref={cgpaResultRef}
+            className="mt-6 p-6 bg-purple-50 rounded-lg border-2 border-purple-brand"
+          >
             <h3 className="text-xl font-bold text-purple-brand mb-2">Your CGPA</h3>
             <p className="text-4xl font-bold text-purple-brand">{cgpa}</p>
           </div>
