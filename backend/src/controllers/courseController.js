@@ -1,5 +1,6 @@
 import Course from '../models/Course.js'
 import Enrollment from '../models/Enrollment.js'
+import Topic from '../models/Topic.js'
 
 // @desc    Get user's enrolled courses
 // @route   GET /api/courses/my-courses
@@ -78,6 +79,27 @@ export const enrollCourse = async (req, res) => {
     })
   } catch (error) {
     console.error('Enroll course error:', error)
+    res.status(500).json({ message: 'Server error occurred' })
+  }
+}
+
+// @desc    Get course details with topics and videos
+// @route   GET /api/courses/:courseId
+// @access  Private
+export const getCourseDetails = async (req, res) => {
+  try {
+    const { courseId } = req.params
+    const course = await Course.findById(courseId)
+    
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' })
+    }
+
+    const topics = await Topic.find({ courseId }).sort({ order: 1 })
+    
+    res.json({ course, topics })
+  } catch (error) {
+    console.error('Get course details error:', error)
     res.status(500).json({ message: 'Server error occurred' })
   }
 }

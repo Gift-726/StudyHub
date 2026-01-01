@@ -78,8 +78,11 @@ const login = async (req, res) => {
 
     const { email, password } = req.body
 
+    // Normalize email (lowercase and trim) to match database storage
+    const normalizedEmail = email.toLowerCase().trim()
+
     // Check for user
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email: normalizedEmail })
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' })
     }

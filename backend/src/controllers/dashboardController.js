@@ -2,6 +2,8 @@ import User from '../models/User.js'
 import Course from '../models/Course.js'
 import Enrollment from '../models/Enrollment.js'
 import StudySession from '../models/StudySession.js'
+import VideoProgress from '../models/VideoProgress.js'
+import Topic from '../models/Topic.js'
 
 // @desc    Get dashboard data
 // @route   GET /api/dashboard
@@ -27,27 +29,36 @@ export const getDashboard = async (req, res) => {
     const totalMinutes = studySessions.reduce((sum, session) => sum + (session.duration || 0), 0)
     const studyHours = Math.round(totalMinutes / 60)
 
-    // Get upcoming exam (example - you can customize this based on your exam schedule)
+    // Get upcoming exam (March 2, 2026)
+    const examDate = new Date('2026-03-02T00:00:00.000Z')
+    const now = new Date()
+    const daysRemaining = Math.ceil((examDate - now) / (1000 * 60 * 60 * 24))
     const upcomingExam = {
-      daysRemaining: 15, // Calculate based on your exam dates
+      daysRemaining: daysRemaining > 0 ? daysRemaining : 0,
       examName: 'First Semester Exams',
-      startDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
+      startDate: examDate.toISOString()
     }
 
-    // Get recently watched content (last 6 sessions)
-    const recentSessions = await StudySession.find({ userId })
-      .sort({ watchedAt: -1 })
+    // Get recently watched content from VideoProgress (last 6 videos watched)
+    const recentProgress = await VideoProgress.find({ userId })
+      .sort({ lastWatchedAt: -1 })
       .limit(6)
       .populate('courseId', 'title')
+      .populate('topicId', 'title videos')
       .lean()
 
-    const recentlyWatched = recentSessions
-      .filter(session => session.courseId)
-      .map(session => ({
-        title: session.courseId?.title || 'Unknown Course',
-        course: session.courseId?.title || 'Unknown Course',
-        watchedAt: session.watchedAt
-      }))
+    // Get video titles from topics (already populated)
+    const recentlyWatched = recentProgress
+      .filter(progress => progress.courseId && progress.topicId)
+      .map(progress => {
+        const video = progress.topicId?.videos?.find(v => v.youtubeId === progress.videoId)
+        return {
+          title: video?.title || 'Video',
+          course: progress.courseId?.title || 'Unknown Course',
+          topic: progress.topicId?.title || '',
+          watchedAt: progress.lastWatchedAt
+        }
+      })
 
     res.json({
       coursesEnrolled,

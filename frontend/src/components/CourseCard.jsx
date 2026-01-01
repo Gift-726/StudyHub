@@ -1,4 +1,8 @@
+import { useNavigate } from 'react-router-dom'
+
 const CourseCard = ({ course }) => {
+  const navigate = useNavigate()
+
   const formatDate = (dateString) => {
     if (!dateString) return 'No activity yet'
     const date = new Date(dateString)
@@ -9,8 +13,15 @@ const CourseCard = ({ course }) => {
     })}`
   }
 
+  const handleClick = () => {
+    navigate(`/courses/${course._id || course.id}`)
+  }
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+    <div 
+      onClick={handleClick}
+      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+    >
       <div className="flex flex-col md:flex-row">
         {/* Course Image */}
         <div className="w-full md:w-48 h-48 md:h-auto flex-shrink-0">

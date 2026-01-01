@@ -5,9 +5,12 @@ import SignUp from './pages/SignUp'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Courses from './pages/Courses'
+import CourseDetail from './pages/CourseDetail'
 import Quizzes from './pages/Quizzes'
 import CGPACalculator from './pages/CGPACalculator'
 import Forum from './pages/Forum'
+import AdminLogin from './pages/AdminLogin'
+import AdminDashboard from './pages/AdminDashboard'
 import ForgotPassword from './pages/ForgotPassword'
 import EnterOTP from './pages/EnterOTP'
 import ResetPassword from './pages/ResetPassword'
@@ -40,6 +43,30 @@ const PublicRoute = ({ children }) => {
   }
   
   return user ? <Navigate to="/dashboard" /> : children
+}
+
+// Admin Route Component
+const AdminRoute = ({ children }) => {
+  const { user, loading } = useAuth()
+  const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || ''
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#faf9f6]">
+        <div className="text-lg text-gray-600">Loading...</div>
+      </div>
+    )
+  }
+  
+  if (!user) {
+    return <Navigate to="/admin/login" />
+  }
+  
+  if (user.email?.toLowerCase() !== adminEmail.toLowerCase()) {
+    return <Navigate to="/dashboard" />
+  }
+  
+  return children
 }
 
 function App() {
@@ -83,6 +110,14 @@ function App() {
               } 
             />
             <Route 
+              path="/courses/:courseId" 
+              element={
+                <ProtectedRoute>
+                  <CourseDetail />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/quizzes" 
               element={
                 <ProtectedRoute>
@@ -104,6 +139,18 @@ function App() {
                 <ProtectedRoute>
                   <Forum />
                 </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/login" 
+              element={<AdminLogin />} 
+            />
+            <Route 
+              path="/admin/dashboard" 
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
               } 
             />
             <Route path="/forgot-password" element={<ForgotPassword />} />

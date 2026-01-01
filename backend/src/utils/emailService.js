@@ -113,7 +113,7 @@ export const sendOTPEmail = async (email, otpCode) => {
   }
 }
 
-// Verify email configuration
+// Verify email configuration AIzaSyDQtNg5jyHHAx3F-8pZG7IiES18ksW206A
 export const verifyEmailConfig = async () => {
   try {
     const transporter = createTransporter()

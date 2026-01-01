@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please select your level'],
     enum: ['100', '200', '300', '400', '500'],
   },
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now,

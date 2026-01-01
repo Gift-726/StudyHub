@@ -40,5 +40,9 @@
   .text-purple-brand {
     color: #4B2E83;
   }
+  
+  .bg-purple-brand {
+    background-color: #4B2E83;
+  }
 }
 
