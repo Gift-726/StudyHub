@@ -17,17 +17,24 @@ const Courses = () => {
   const [activeFilter, setActiveFilter] = useState('all')
   const [sortBy, setSortBy] = useState('alphabetical')
 
-  // Fetch enrolled courses
+  // Fetch enrolled courses and all courses count on initial load
   useEffect(() => {
     fetchMyCourses()
+    fetchAllCourses() // Always fetch to show count
   }, [])
 
-  // Fetch all available courses when browsing
+  // Update filtered courses when switching tabs
   useEffect(() => {
     if (activeTab === 'browse') {
-      fetchAllCourses()
+      if (allAvailableCourses.length === 0) {
+        fetchAllCourses()
+      } else {
+        setFilteredCourses(allAvailableCourses)
+      }
+    } else {
+      setFilteredCourses(courses)
     }
-  }, [activeTab])
+  }, [activeTab, allAvailableCourses, courses])
 
   const fetchMyCourses = async () => {
     try {
@@ -49,16 +56,11 @@ const Courses = () => {
 
   const fetchAllCourses = async () => {
     try {
-      setLoading(true)
       const response = await coursesAPI.getAllCourses()
       setAllAvailableCourses(response.data)
-      setFilteredCourses(response.data)
     } catch (error) {
       console.error('Error fetching all courses:', error)
       setAllAvailableCourses([])
-      setFilteredCourses([])
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -130,14 +132,96 @@ const Courses = () => {
     )
   }
 
+  // Calculate stats
+  const inProgressCount = courses.filter(c => c.progress > 0 && c.progress < 100).length
+
   return (
     <Layout>
       <div>
         {/* Page Title */}
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Courses</h1>
 
+        {/* Search, Filters, and Sort */}
+        <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            {/* Filters - Only show for My Courses */}
+            {activeTab === 'my-courses' && (
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => setActiveFilter('all')}
+                  className={`
+                    px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                    ${activeFilter === 'all'
+                      ? 'bg-purple-brand text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }
+                  `}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setActiveFilter('in-progress')}
+                  className={`
+                    px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                    ${activeFilter === 'in-progress'
+                      ? 'bg-purple-brand text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }
+                  `}
+                >
+                  In Progress
+                </button>
+              </div>
+            )}
+
+            {/* Search Bar and Sort - Right aligned */}
+            <div className="flex flex-col md:flex-row gap-4 md:ml-auto">
+              {/* Search Bar */}
+              <div className="w-full md:w-auto md:min-w-[300px]">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search Courses..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                  <svg
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Sort Dropdown */}
+              <div className="w-full md:w-auto">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                >
+                  <option value="alphabetical">Alphabetical</option>
+                  {activeTab === 'my-courses' && (
+                    <>
+                      <option value="progress">Progress</option>
+                      <option value="recent">Recent Activity</option>
+                    </>
+                  )}
+                  {activeTab === 'browse' && (
+                    <option value="level">Level</option>
+                  )}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Tabs */}
-        <div className="mb-6 border-b border-gray-200">
+        <div className="mb-4 border-b border-gray-200">
           <div className="flex gap-4">
             <button
               onClick={() => {
@@ -174,93 +258,19 @@ const Courses = () => {
           </div>
         </div>
 
-        {/* Search, Filters, and Sort */}
-        <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center gap-4">
-            {/* Filters - Only show for My Courses */}
-            {activeTab === 'my-courses' && (
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={() => setActiveFilter('all')}
-                  className={`
-                    px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                    ${activeFilter === 'all'
-                      ? 'bg-purple-brand text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }
-                  `}
-                >
-                  All Courses
-                  <span className={`
-                    ml-2 px-2 py-0.5 rounded-full text-xs
-                    ${activeFilter === 'all' ? 'bg-white text-purple-brand' : 'bg-purple-brand text-white'}
-                  `}>
-                    {courses.length}
-                  </span>
-                </button>
-                <button
-                  onClick={() => setActiveFilter('in-progress')}
-                  className={`
-                    px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                    ${activeFilter === 'in-progress'
-                      ? 'bg-purple-brand text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }
-                  `}
-                >
-                  In Progress
-                  <span className={`
-                    ml-2 px-2 py-0.5 rounded-full text-xs
-                    ${activeFilter === 'in-progress' ? 'bg-white text-purple-brand' : 'bg-purple-brand text-white'}
-                  `}>
-                    {courses.filter(c => c.progress > 0 && c.progress < 100).length}
-                  </span>
-                </button>
-              </div>
-            )}
-
-            {/* Search Bar */}
-            <div className="flex-1 md:max-w-md">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search Courses..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-                <svg
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
+        {/* Course Overview Stats - Only show for My Courses, below tabs */}
+        {activeTab === 'my-courses' && (
+          <div className="mb-6 flex flex-wrap gap-4">
+            <div className="text-gray-700">
+              <span className="font-semibold">All Courses </span>
+              <span className="text-gray-600">{courses.length}</span>
             </div>
-
-            {/* Sort Dropdown */}
-            <div className="w-full md:w-auto">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
-              >
-                <option value="alphabetical">Alphabetical</option>
-                {activeTab === 'my-courses' && (
-                  <>
-                    <option value="progress">Progress</option>
-                    <option value="recent">Recent Activity</option>
-                  </>
-                )}
-                {activeTab === 'browse' && (
-                  <option value="level">Level</option>
-                )}
-              </select>
+            <div className="text-gray-700">
+              <span className="font-semibold">In Progress </span>
+              <span className="text-gray-600">{inProgressCount}</span>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Course List */}
         {filteredCourses.length > 0 ? (

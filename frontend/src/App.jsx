@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import LoadingSpinner from './components/LoadingSpinner'
 import SignUp from './pages/SignUp'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -11,6 +12,8 @@ import CGPACalculator from './pages/CGPACalculator'
 import Forum from './pages/Forum'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
+import CourseAdminLogin from './pages/CourseAdminLogin'
+import CourseAdminDashboard from './pages/CourseAdminDashboard'
 import ForgotPassword from './pages/ForgotPassword'
 import EnterOTP from './pages/EnterOTP'
 import ResetPassword from './pages/ResetPassword'
@@ -22,7 +25,7 @@ const ProtectedRoute = ({ children }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#faf9f6]">
-        <div className="text-lg text-gray-600">Loading...</div>
+        <LoadingSpinner size="lg" />
       </div>
     )
   }
@@ -37,7 +40,7 @@ const PublicRoute = ({ children }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#faf9f6]">
-        <div className="text-lg text-gray-600">Loading...</div>
+        <LoadingSpinner size="lg" />
       </div>
     )
   }
@@ -53,7 +56,7 @@ const AdminRoute = ({ children }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#faf9f6]">
-        <div className="text-lg text-gray-600">Loading...</div>
+        <LoadingSpinner size="lg" />
       </div>
     )
   }
@@ -64,6 +67,25 @@ const AdminRoute = ({ children }) => {
   
   if (user.email?.toLowerCase() !== adminEmail.toLowerCase()) {
     return <Navigate to="/dashboard" />
+  }
+  
+  return children
+}
+
+// Course Admin Route Component
+const CourseAdminRoute = ({ children }) => {
+  const { user, loading } = useAuth()
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#faf9f6]">
+        <LoadingSpinner size="lg" />
+      </div>
+    )
+  }
+  
+  if (!user) {
+    return <Navigate to="/course-admin/login" />
   }
   
   return children
@@ -151,7 +173,19 @@ function App() {
                 <AdminRoute>
                   <AdminDashboard />
                 </AdminRoute>
-              } 
+              }
+            />
+            <Route 
+              path="/course-admin/login" 
+              element={<CourseAdminLogin />} 
+            />
+            <Route 
+              path="/course-admin/dashboard" 
+              element={
+                <CourseAdminRoute>
+                  <CourseAdminDashboard />
+                </CourseAdminRoute>
+              }
             />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/enter-otp" element={<EnterOTP />} />

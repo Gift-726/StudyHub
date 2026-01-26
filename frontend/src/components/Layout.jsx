@@ -6,13 +6,16 @@ import dashboardIcon from '../assets/dashboard-square-02.png'
 import coursesIcon from '../assets/notebook-02.png'
 import quizzesIcon from '../assets/quiz-02.png'
 import calculatorIcon from '../assets/calculator-01.png'
+import chatIcon from '../assets/chat.png'
 import logoutIcon from '../assets/logout-square-01.png'
+import sidebarIcon from '../assets/sidebar-left-01.png'
 
 const Layout = ({ children }) => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   // Get the first name from fullName
   const getFirstName = () => {
@@ -35,7 +38,7 @@ const Layout = ({ children }) => {
     { name: 'Courses', path: '/courses', icon: coursesIcon, isImage: true },
     { name: 'Quizzes', path: '/quizzes', icon: quizzesIcon, isImage: true },
     { name: 'CGPA Calculator', path: '/cgpa-calculator', icon: calculatorIcon, isImage: true },
-    { name: 'Forum', path: '/forum', icon: '💬', isImage: false },
+    { name: 'Forum', path: '/forum', icon: chatIcon, isImage: true },
   ]
 
   const isActive = (path) => location.pathname === path
@@ -59,16 +62,40 @@ const Layout = ({ children }) => {
       <aside
         className={`
           fixed md:static inset-y-0 left-0 z-50
-          w-64 bg-[#faf9f6] border-r border-gray-200
-          transform transition-transform duration-300 ease-in-out
+          ${sidebarCollapsed ? 'w-20' : 'w-64'} bg-[#faf9f6] border-r border-gray-200
+          transform transition-all duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="flex items-center gap-3 p-6 border-b border-gray-200">
-            <img src={logo} alt="Studyhub" className="w-10 h-10" />
-            <span className="text-xl font-bold text-purple-brand">Studyhub</span>
+          {/* Logo with Collapse Toggle */}
+          <div className={`flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'} gap-3 p-6 border-b border-gray-200`}>
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="Studyhub" className="w-10 h-10" />
+              {!sidebarCollapsed && (
+                <span className="text-xl font-bold text-purple-brand">Studyhub</span>
+              )}
+            </div>
+            {!sidebarCollapsed && (
+              <button
+                onClick={() => setSidebarCollapsed(true)}
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Collapse sidebar"
+                aria-label="Collapse sidebar"
+              >
+                <img src={sidebarIcon} alt="Collapse sidebar" className="w-5 h-5 object-contain" />
+              </button>
+            )}
+            {sidebarCollapsed && (
+              <button
+                onClick={() => setSidebarCollapsed(false)}
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Expand sidebar"
+                aria-label="Expand sidebar"
+              >
+                <img src={sidebarIcon} alt="Expand sidebar" className="w-5 h-5 object-contain rotate-180" />
+              </button>
+            )}
           </div>
 
           {/* Navigation */}
@@ -81,20 +108,21 @@ const Layout = ({ children }) => {
                   setSidebarOpen(false)
                 }}
                 className={`
-                  w-full flex items-center gap-3 px-4 py-3 rounded-lg
+                  w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} px-4 py-3 rounded-lg
                   transition-colors text-left
                   ${isActive(item.path)
                     ? 'bg-purple-100 text-purple-brand font-semibold'
                     : 'text-gray-700 hover:bg-gray-100'
                   }
                 `}
+                title={sidebarCollapsed ? item.name : ''}
               >
                 {item.isImage ? (
                   <img src={item.icon} alt={item.name} className="w-5 h-5 object-contain" />
                 ) : (
                   <span className="text-xl">{item.icon}</span>
                 )}
-                <span>{item.name}</span>
+                {!sidebarCollapsed && <span>{item.name}</span>}
               </button>
             ))}
           </nav>
@@ -103,10 +131,11 @@ const Layout = ({ children }) => {
           <div className="p-4 border-t border-gray-200">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+              className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors`}
+              title={sidebarCollapsed ? 'Logout' : ''}
             >
               <img src={logoutIcon} alt="Logout" className="w-5 h-5 object-contain" />
-              <span>Logout</span>
+              {!sidebarCollapsed && <span>Logout</span>}
             </button>
           </div>
         </div>

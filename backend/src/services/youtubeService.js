@@ -75,7 +75,103 @@ export const fetchPlaylistVideos = async (playlistId, apiKey) => {
     return allVideos
   } catch (error) {
     console.error('YouTube API Error:', error)
-    throw new Error(`Failed to fetch playlist videos: ${error.message}`)
+    
+    // Handle network/DNS errors
+    if (error.code === 'EAI_AGAIN' || error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+      throw new Error('Network error: Unable to connect to YouTube API. Please check your internet connection and try again.')
+    }
+    
+    // Handle API errors
+    if (error.response) {
+      const status = error.response.status
+      if (status === 403) {
+        throw new Error('YouTube API access denied. Please check your API key and quota.')
+      } else if (status === 404) {
+        throw new Error('Playlist not found. Please check if the playlist URL is correct and the playlist is publicly available.')
+      } else if (status === 400) {
+        throw new Error('Invalid request. Please check the playlist URL format.')
+      } else {
+        throw new Error(`YouTube API error (${status}): ${error.response.data?.error?.message || error.message}`)
+      }
+    }
+    
+    // Handle other errors
+    if (error.message) {
+      throw new Error(`Failed to fetch playlist videos: ${error.message}`)
+    }
+    
+    throw new Error('Failed to fetch playlist videos. Please try again later.')
+  }
+}
+
+// Extract video ID from URL
+export const extractVideoId = (url) => {
+  // Handle different YouTube video URL formats
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/, // Standard formats
+    /youtube\.com\/watch\?.*&v=([a-zA-Z0-9_-]+)/, // With other parameters
+  ]
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match) return match[1]
+  }
+  
+  return null
+}
+
+// Fetch single video details
+export const fetchSingleVideo = async (videoId, apiKey) => {
+  try {
+    const response = await youtube.videos.list({
+      key: apiKey,
+      part: ['snippet', 'contentDetails'],
+      id: [videoId]
+    })
+
+    if (!response.data.items || response.data.items.length === 0) {
+      throw new Error('Video not found')
+    }
+
+    const video = response.data.items[0]
+    const duration = parseDuration(video.contentDetails.duration)
+
+    return {
+      youtubeId: video.id,
+      title: video.snippet.title,
+      description: video.snippet.description || '',
+      thumbnail: video.snippet.thumbnails?.high?.url || video.snippet.thumbnails?.default?.url || '',
+      duration: duration,
+      order: 0
+    }
+  } catch (error) {
+    console.error('YouTube API Error:', error)
+    
+    // Handle network/DNS errors
+    if (error.code === 'EAI_AGAIN' || error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+      throw new Error('Network error: Unable to connect to YouTube API. Please check your internet connection and try again.')
+    }
+    
+    // Handle API errors
+    if (error.response) {
+      const status = error.response.status
+      if (status === 403) {
+        throw new Error('YouTube API access denied. Please check your API key and quota.')
+      } else if (status === 404) {
+        throw new Error('Video not found. Please check if the video URL is correct and the video is publicly available.')
+      } else if (status === 400) {
+        throw new Error('Invalid request. Please check the video URL format.')
+      } else {
+        throw new Error(`YouTube API error (${status}): ${error.response.data?.error?.message || error.message}`)
+      }
+    }
+    
+    // Handle other errors
+    if (error.message) {
+      throw new Error(`Failed to fetch video: ${error.message}`)
+    }
+    
+    throw new Error('Failed to fetch video. Please try again later.')
   }
 }
 

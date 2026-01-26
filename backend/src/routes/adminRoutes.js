@@ -2,7 +2,8 @@ import express from 'express'
 import { protect } from '../middleware/auth.js'
 import { adminAuth } from '../middleware/adminAuth.js'
 import { 
-  importPlaylist, 
+  importPlaylist,
+  importSingleVideo,
   uploadMaterial, 
   getAllCoursesAdmin,
   getCourseDetailsAdmin,
@@ -21,6 +22,7 @@ router.get('/courses', getAllCoursesAdmin)
 router.get('/courses/:courseId', getCourseDetailsAdmin)
 router.post('/courses', createCourse)
 router.post('/import-playlist', importPlaylist)
+router.post('/import-video', importSingleVideo)
 router.post('/upload-material', upload.single('file'), uploadMaterial)
 router.delete('/topics/:topicId', deleteTopic)
 

@@ -40,7 +40,7 @@ const CourseCard = ({ course }) => {
           </div>
 
           {/* Topics Count */}
-          <p className="text-sm text-gray-600 mb-2">{course.topics || 12} Topics</p>
+          <p className="text-sm text-gray-600 mb-2">{course.topics || 0} Topics</p>
 
           {/* Course Title */}
           <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-3 pr-16 md:pr-20">

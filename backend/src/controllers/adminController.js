@@ -1,6 +1,6 @@
 import Course from '../models/Course.js'
 import Topic from '../models/Topic.js'
-import { extractPlaylistId, fetchPlaylistVideos } from '../services/youtubeService.js'
+import { extractPlaylistId, fetchPlaylistVideos, extractVideoId, fetchSingleVideo } from '../services/youtubeService.js'
 import multer from 'multer'
 import path from 'path'
 import fs from 'fs'
@@ -36,6 +36,104 @@ export const upload = multer({
     }
   }
 })
+
+// Import single video from YouTube
+export const importSingleVideo = async (req, res) => {
+  try {
+    const { courseId, videoUrl, topicTitle, topicDescription } = req.body
+    const apiKey = process.env.YOUTUBE_API_KEY
+
+    if (!apiKey) {
+      return res.status(500).json({ message: 'YouTube API key not configured' })
+    }
+
+    if (!videoUrl || !courseId || !topicTitle) {
+      return res.status(400).json({ message: 'Missing required fields: courseId, videoUrl, topicTitle' })
+    }
+
+    const videoId = extractVideoId(videoUrl)
+    if (!videoId) {
+      return res.status(400).json({ message: 'Invalid video URL. Please provide a valid YouTube video URL.' })
+    }
+
+    // Check if course exists
+    const course = await Course.findById(courseId)
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' })
+    }
+
+    // Fetch video from YouTube
+    const video = await fetchSingleVideo(videoId, apiKey)
+
+    // Create or update topic
+    let topic = await Topic.findOne({ courseId, title: topicTitle })
+    
+    if (topic) {
+      // Check if video already exists in topic
+      const videoExists = topic.videos.some(v => v.youtubeId === videoId)
+      if (!videoExists) {
+        // Add video to existing topic
+        topic.videos.push(video)
+        topic.description = topicDescription || topic.description
+        await topic.save()
+      }
+    } else {
+      // Create new topic with single video
+      const topicCount = await Topic.countDocuments({ courseId })
+      topic = await Topic.create({
+        courseId,
+        title: topicTitle,
+        description: topicDescription || '',
+        videos: [video],
+        order: topicCount
+      })
+    }
+
+    // Update course topics count
+    const topicCount = await Topic.countDocuments({ courseId })
+    await Course.findByIdAndUpdate(courseId, {
+      topics: topicCount
+    })
+
+    res.json({
+      message: 'Video imported successfully',
+      topic: {
+        _id: topic._id,
+        title: topic.title,
+        description: topic.description,
+        videosCount: topic.videos.length
+      },
+      videosCount: 1
+    })
+  } catch (error) {
+    console.error('Import video error:', error)
+    
+    // Determine appropriate status code based on error type
+    let statusCode = 500
+    let errorMessage = error.message || 'Failed to import video'
+    
+    // Network/DNS errors
+    if (error.message?.includes('Network error') || error.message?.includes('Unable to connect')) {
+      statusCode = 503 // Service Unavailable
+      errorMessage = error.message
+    }
+    // Invalid URL errors
+    else if (error.message?.includes('Invalid video URL') || error.message?.includes('Video not found')) {
+      statusCode = 400 // Bad Request
+      errorMessage = error.message
+    }
+    // API key errors
+    else if (error.message?.includes('API key') || error.message?.includes('access denied')) {
+      statusCode = 500
+      errorMessage = error.message
+    }
+    
+    res.status(statusCode).json({ 
+      message: errorMessage,
+      error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    })
+  }
+}
 
 // Import playlist from YouTube
 export const importPlaylist = async (req, res) => {
@@ -107,8 +205,29 @@ export const importPlaylist = async (req, res) => {
     })
   } catch (error) {
     console.error('Import playlist error:', error)
-    res.status(500).json({ 
-      message: error.message || 'Failed to import playlist',
+    
+    // Determine appropriate status code based on error type
+    let statusCode = 500
+    let errorMessage = error.message || 'Failed to import playlist'
+    
+    // Network/DNS errors
+    if (error.message?.includes('Network error') || error.message?.includes('Unable to connect')) {
+      statusCode = 503 // Service Unavailable
+      errorMessage = error.message
+    }
+    // Invalid URL errors
+    else if (error.message?.includes('Invalid playlist URL') || error.message?.includes('Playlist not found')) {
+      statusCode = 400 // Bad Request
+      errorMessage = error.message
+    }
+    // API key errors
+    else if (error.message?.includes('API key') || error.message?.includes('access denied')) {
+      statusCode = 500
+      errorMessage = error.message
+    }
+    
+    res.status(statusCode).json({ 
+      message: errorMessage,
       error: process.env.NODE_ENV === 'development' ? error.stack : undefined
     })
   }

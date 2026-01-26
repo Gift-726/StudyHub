@@ -12,6 +12,7 @@ import authRoutes from './routes/authRoutes.js'
 import dashboardRoutes from './routes/dashboardRoutes.js'
 import courseRoutes from './routes/courseRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
+import courseAdminRoutes from './routes/courseAdminRoutes.js'
 import progressRoutes from './routes/progressRoutes.js'
 
 // Load environment variables
@@ -57,6 +58,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/courses', courseRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/api/course-admin', courseAdminRoutes)
 app.use('/api/progress', progressRoutes)
 
 // Health check

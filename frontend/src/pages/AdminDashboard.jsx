@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { adminAPI } from '../services/api'
 import toast from 'react-hot-toast'
 import AdminLayout from '../components/AdminLayout'
+import LoadingSpinner from '../components/LoadingSpinner'
 import { faculties } from '../utils/faculties'
 
 const AdminDashboard = () => {
@@ -17,9 +18,16 @@ const AdminDashboard = () => {
   const [uploading, setUploading] = useState(false)
 
   // Form states
+  const [importType, setImportType] = useState('playlist') // 'playlist' or 'video'
   const [playlistForm, setPlaylistForm] = useState({
     courseId: '',
     playlistUrl: '',
+    topicTitle: '',
+    topicDescription: ''
+  })
+  const [videoForm, setVideoForm] = useState({
+    courseId: '',
+    videoUrl: '',
     topicTitle: '',
     topicDescription: ''
   })
@@ -116,6 +124,35 @@ const AdminDashboard = () => {
     }
   }
 
+  const handleImportVideo = async (e) => {
+    e.preventDefault()
+    if (!videoForm.courseId || !videoForm.videoUrl || !videoForm.topicTitle) {
+      toast.error('Please fill all required fields')
+      return
+    }
+
+    try {
+      setImporting(true)
+      const response = await adminAPI.importSingleVideo(videoForm)
+      toast.success('Successfully imported video!')
+      setVideoForm({
+        courseId: '',
+        videoUrl: '',
+        topicTitle: '',
+        topicDescription: ''
+      })
+      // Refresh course details if viewing that course
+      if (selectedCourse === videoForm.courseId) {
+        fetchCourseDetails(videoForm.courseId)
+      }
+    } catch (error) {
+      console.error('Error importing video:', error)
+      toast.error(error.response?.data?.message || 'Failed to import video')
+    } finally {
+      setImporting(false)
+    }
+  }
+
   const handleUploadMaterial = async (e) => {
     e.preventDefault()
     if (!materialForm.topicId || !materialForm.title || !materialForm.file) {
@@ -193,11 +230,12 @@ const AdminDashboard = () => {
     }
   }
 
+
   if (loading) {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-lg text-gray-600">Loading...</div>
+          <LoadingSpinner size="lg" />
         </div>
       </AdminLayout>
     )
@@ -246,7 +284,39 @@ const AdminDashboard = () => {
 
           {courseDetails && (
             <div className="mt-6">
+              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="font-semibold text-blue-800 mb-2">Course Admin Access</h4>
+                <p className="text-sm text-gray-700 mb-2">
+                  <strong>Course:</strong> {courseDetails.course.title}
+                </p>
+                <div className="mb-2">
+                  <label className="text-sm font-medium text-gray-700 block mb-1">Course ID (for course admin login):</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={selectedCourse}
+                      readOnly
+                      className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded text-sm font-mono"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(selectedCourse)
+                        toast.success('Course ID copied to clipboard!')
+                      }}
+                      className="px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600">
+                  Share this Course ID with the course administrator. They can use it to login at{' '}
+                  <span className="font-mono">/course-admin/login</span> (no token needed!)
+                </p>
+              </div>
+              
               <h3 className="text-lg font-bold mb-4">Topics in {courseDetails.course.title}</h3>
+              
               <div className="space-y-4">
                 {courseDetails.topics.length > 0 ? (
                   courseDetails.topics.map((topic) => (
@@ -413,10 +483,38 @@ const AdminDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Import Playlist Section */}
+          {/* Import YouTube Content Section */}
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-xl font-bold mb-4">Import YouTube Playlist</h2>
-            <form onSubmit={handleImportPlaylist} className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">Import YouTube Content</h2>
+              <div className="flex gap-2 bg-gray-100 rounded-lg p-1">
+                <button
+                  type="button"
+                  onClick={() => setImportType('playlist')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    importType === 'playlist'
+                      ? 'bg-purple-brand text-white'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Playlist
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setImportType('video')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    importType === 'video'
+                      ? 'bg-purple-brand text-white'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Single Video
+                </button>
+              </div>
+            </div>
+
+            {importType === 'playlist' ? (
+              <form onSubmit={handleImportPlaylist} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Select Course *
@@ -452,6 +550,7 @@ const AdminDashboard = () => {
                   placeholder="https://www.youtube.com/playlist?list=..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
+                <p className="text-xs text-gray-500 mt-1">Paste a YouTube playlist URL</p>
               </div>
 
               <div>
@@ -489,6 +588,82 @@ const AdminDashboard = () => {
                 {importing ? 'Importing...' : 'Import Playlist'}
               </button>
             </form>
+            ) : (
+              <form onSubmit={handleImportVideo} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Select Course *
+                </label>
+                <select
+                  value={videoForm.courseId}
+                  onChange={(e) => setVideoForm({ ...videoForm, courseId: e.target.value })}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                  disabled={courses.length === 0}
+                >
+                  <option value="">{courses.length === 0 ? 'No courses available' : 'Select a course'}</option>
+                  {courses.map((course) => (
+                    <option key={course._id} value={course._id}>
+                      {course.title} ({course.level} Level)
+                    </option>
+                  ))}
+                </select>
+                {courses.length === 0 && (
+                  <p className="text-xs text-red-500 mt-1">Please create courses first before importing videos</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  YouTube Video URL *
+                </label>
+                <input
+                  type="url"
+                  value={videoForm.videoUrl}
+                  onChange={(e) => setVideoForm({ ...videoForm, videoUrl: e.target.value })}
+                  required
+                  placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">Paste a YouTube video URL</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Topic Title *
+                </label>
+                <input
+                  type="text"
+                  value={videoForm.topicTitle}
+                  onChange={(e) => setVideoForm({ ...videoForm, topicTitle: e.target.value })}
+                  required
+                  placeholder="e.g., Introduction to Algebra"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Topic Description
+                </label>
+                <textarea
+                  value={videoForm.topicDescription}
+                  onChange={(e) => setVideoForm({ ...videoForm, topicDescription: e.target.value })}
+                  placeholder="Optional description..."
+                  rows="3"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={importing}
+                className="w-full py-2 btn-purple text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {importing ? 'Importing...' : 'Import Video'}
+              </button>
+            </form>
+            )}
           </div>
 
           {/* Upload Material Section */}

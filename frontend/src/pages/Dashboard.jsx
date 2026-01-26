@@ -4,6 +4,7 @@ import { dashboardAPI } from '../services/api'
 import MetricsCard from '../components/MetricsCard'
 import CountdownTimer from '../components/CountdownTimer'
 import Layout from '../components/Layout'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 // Fixed exam date: March 2, 2026 - works independently of server
 const EXAM_DATE = new Date('2026-03-02T00:00:00.000Z')
@@ -56,7 +57,7 @@ const Dashboard = () => {
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#faf9f6]">
-        <div className="text-lg text-gray-600">Loading...</div>
+        <LoadingSpinner size="lg" />
       </div>
     )
   }
@@ -115,7 +116,7 @@ const Dashboard = () => {
             <p className="text-sm text-gray-400 mt-2">Start watching videos to see them here</p>
           </div>
         )}
-      </div>
+    </div>
     </Layout>
   )
 }

@@ -29,6 +29,15 @@ const courseSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  courseAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
+  adminAccessToken: {
+    type: String,
+    default: null
+  },
   topics: {
     type: Number,
     default: 0
@@ -41,6 +50,31 @@ const courseSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  forumLinks: [{
+    title: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    url: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    platform: {
+      type: String,
+      trim: true,
+      default: 'Other' // e.g., WhatsApp, Telegram, Discord, Facebook, etc.
+    },
+    description: {
+      type: String,
+      trim: true
+    },
+    addedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   createdAt: {
     type: Date,
     default: Date.now

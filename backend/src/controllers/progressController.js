@@ -85,11 +85,17 @@ export const getCourseProgress = async (req, res) => {
       ? Math.round((completedCount / totalVideos) * 100) 
       : 0
 
+    // Create a map of completed video IDs for easy lookup
+    const completedVideoIds = new Set(
+      progress.filter(p => p.completed).map(p => p.videoId)
+    )
+
     res.json({
       completedVideos: completedCount,
       totalVideos,
       completionPercentage,
-      progress
+      progress,
+      completedVideoIds: Array.from(completedVideoIds)
     })
   } catch (error) {
     console.error('Get course progress error:', error)

@@ -38,7 +38,9 @@ export const getMyCourses = async (req, res) => {
 // @access  Private
 export const getAllCourses = async (req, res) => {
   try {
-    const courses = await Course.find().sort({ createdAt: -1 })
+    const courses = await Course.find()
+      .select('-adminAccessToken') // Don't expose access tokens
+      .sort({ createdAt: -1 })
     res.json(courses)
   } catch (error) {
     console.error('Get all courses error:', error)
@@ -97,7 +99,34 @@ export const getCourseDetails = async (req, res) => {
 
     const topics = await Topic.find({ courseId }).sort({ order: 1 })
     
-    res.json({ course, topics })
+    // Calculate course statistics
+    let totalVideos = 0
+    let totalMaterials = 0
+    let totalPastQuestions = 0
+    
+    topics.forEach(topic => {
+      totalVideos += topic.videos?.length || 0
+      if (topic.materials && topic.materials.length > 0) {
+        topic.materials.forEach(material => {
+          if (material.type === 'pdf' || material.type === 'note') {
+            totalMaterials++
+          } else if (material.type === 'past-question') {
+            totalPastQuestions++
+          }
+        })
+      }
+    })
+    
+    res.json({ 
+      course, 
+      topics,
+      statistics: {
+        totalVideos,
+        totalMaterials,
+        totalPastQuestions,
+        totalTopics: topics.length
+      }
+    })
   } catch (error) {
     console.error('Get course details error:', error)
     res.status(500).json({ message: 'Server error occurred' })
