@@ -17,6 +17,7 @@ import CourseAdminDashboard from './pages/CourseAdminDashboard'
 import ForgotPassword from './pages/ForgotPassword'
 import EnterOTP from './pages/EnterOTP'
 import ResetPassword from './pages/ResetPassword'
+import NotFound from './pages/NotFound'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -190,6 +191,8 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/enter-otp" element={<EnterOTP />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            {/* 404 - Catch all route */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </Router>
