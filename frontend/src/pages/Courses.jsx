@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import CourseCard from '../components/CourseCard'
 import BrowseCourseCard from '../components/BrowseCourseCard'
+import LoadingSpinner from '../components/LoadingSpinner'
 import { coursesAPI } from '../services/api'
 import toast from 'react-hot-toast'
 
@@ -15,6 +16,7 @@ const Courses = () => {
   const [enrolling, setEnrolling] = useState({})
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState('all')
+  const [levelFilter, setLevelFilter] = useState('all')
   const [sortBy, setSortBy] = useState('alphabetical')
 
   // Fetch enrolled courses and all courses count on initial load
@@ -104,6 +106,13 @@ const Courses = () => {
       }
     }
 
+    // Apply level filter (only for browse tab)
+    if (activeTab === 'browse' && levelFilter !== 'all') {
+      filtered = filtered.filter(course =>
+        String(course.level) === String(levelFilter)
+      )
+    }
+
     // Apply sorting
     if (sortBy === 'alphabetical') {
       filtered.sort((a, b) => a.title.localeCompare(b.title))
@@ -120,13 +129,13 @@ const Courses = () => {
     }
 
     setFilteredCourses(filtered)
-  }, [courses, allAvailableCourses, activeTab, searchQuery, activeFilter, sortBy])
+  }, [courses, allAvailableCourses, activeTab, searchQuery, activeFilter, levelFilter, sortBy])
 
   if (loading) {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-lg text-gray-600">Loading courses...</div>
+          <LoadingSpinner size="lg" />
         </div>
       </Layout>
     )
@@ -143,80 +152,104 @@ const Courses = () => {
 
         {/* Search, Filters, and Sort */}
         <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            {/* Filters - Only show for My Courses */}
-            {activeTab === 'my-courses' && (
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={() => setActiveFilter('all')}
-                  className={`
-                    px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                    ${activeFilter === 'all'
-                      ? 'bg-purple-brand text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }
-                  `}
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => setActiveFilter('in-progress')}
-                  className={`
-                    px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                    ${activeFilter === 'in-progress'
-                      ? 'bg-purple-brand text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }
-                  `}
-                >
-                  In Progress
-                </button>
-              </div>
-            )}
-
-            {/* Search Bar and Sort - Right aligned */}
-            <div className="flex flex-col md:flex-row gap-4 md:ml-auto">
-              {/* Search Bar */}
-              <div className="w-full md:w-auto md:min-w-[300px]">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search Courses..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
-                  <svg
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              {/* Status Filters - Only show for My Courses */}
+              {activeTab === 'my-courses' && (
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => setActiveFilter('all')}
+                    className={`
+                      px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                      ${activeFilter === 'all'
+                        ? 'bg-purple-brand text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }
+                    `}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
+                    All
+                  </button>
+                  <button
+                    onClick={() => setActiveFilter('in-progress')}
+                    className={`
+                      px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                      ${activeFilter === 'in-progress'
+                        ? 'bg-purple-brand text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }
+                    `}
+                  >
+                    In Progress
+                  </button>
+                </div>
+              )}
+
+              {/* Search Bar and Sort - Right aligned */}
+              <div className="flex flex-col md:flex-row gap-4 md:ml-auto">
+                {/* Search Bar */}
+                <div className="w-full md:w-auto md:min-w-[300px]">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search Courses..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                    <svg
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Sort Dropdown */}
+                <div className="w-full md:w-auto">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                  >
+                    <option value="alphabetical">Alphabetical</option>
+                    {activeTab === 'my-courses' && (
+                      <>
+                        <option value="progress">Progress</option>
+                        <option value="recent">Recent Activity</option>
+                      </>
+                    )}
+                    {activeTab === 'browse' && (
+                      <option value="level">Level</option>
+                    )}
+                  </select>
                 </div>
               </div>
-
-              {/* Sort Dropdown */}
-              <div className="w-full md:w-auto">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
-                >
-                  <option value="alphabetical">Alphabetical</option>
-                  {activeTab === 'my-courses' && (
-                    <>
-                      <option value="progress">Progress</option>
-                      <option value="recent">Recent Activity</option>
-                    </>
-                  )}
-                  {activeTab === 'browse' && (
-                    <option value="level">Level</option>
-                  )}
-                </select>
-              </div>
             </div>
+
+            {/* Level Filter — only for Browse All Courses */}
+            {activeTab === 'browse' && (
+              <div className="flex flex-wrap gap-2 pt-1">
+                <span className="text-sm font-medium text-gray-600 self-center mr-1">Filter by Level:</span>
+                {['all', '100', '200', '300', '400', '500'].map((lvl) => (
+                  <button
+                    key={lvl}
+                    onClick={() => setLevelFilter(lvl)}
+                    className={`
+                      px-4 py-1.5 rounded-full text-sm font-medium transition-colors
+                      ${levelFilter === lvl
+                        ? 'bg-purple-brand text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }
+                    `}
+                  >
+                    {lvl === 'all' ? 'All Levels' : `${lvl} Level`}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -227,6 +260,7 @@ const Courses = () => {
               onClick={() => {
                 setActiveTab('my-courses')
                 setActiveFilter('all')
+                setLevelFilter('all')
                 setSearchQuery('')
               }}
               className={`
@@ -243,6 +277,7 @@ const Courses = () => {
               onClick={() => {
                 setActiveTab('browse')
                 setActiveFilter('all')
+                setLevelFilter('all')
                 setSearchQuery('')
               }}
               className={`
@@ -294,15 +329,15 @@ const Courses = () => {
         ) : (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             <p className="text-lg text-gray-500">
-              {searchQuery 
-                ? 'No courses found matching your search.' 
+              {searchQuery
+                ? 'No courses found matching your search.'
                 : activeTab === 'my-courses'
                   ? 'No courses enrolled yet.'
                   : 'No courses available yet.'}
             </p>
             <p className="text-sm text-gray-400 mt-2">
-              {searchQuery 
-                ? 'Try adjusting your search or filters.' 
+              {searchQuery
+                ? 'Try adjusting your search or filters.'
                 : activeTab === 'my-courses'
                   ? 'Browse available courses to get started!'
                   : 'Check back later for new courses.'}

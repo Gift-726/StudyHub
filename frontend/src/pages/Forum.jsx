@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
+import LoadingSpinner from '../components/LoadingSpinner'
 import { coursesAPI } from '../services/api'
 import toast from 'react-hot-toast'
 
@@ -55,8 +56,8 @@ const Forum = () => {
     return (
       <Layout>
         <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="text-center py-12">
-            <div className="text-lg text-gray-600">Loading forum links...</div>
+          <div className="flex items-center justify-center py-20">
+            <LoadingSpinner size="lg" />
           </div>
         </div>
       </Layout>
@@ -99,9 +100,8 @@ const Forum = () => {
                     </p>
                   </div>
                   <svg
-                    className={`w-5 h-5 text-gray-500 transition-transform ${
-                      expandedCourse === course._id ? 'transform rotate-180' : ''
-                    }`}
+                    className={`w-5 h-5 text-gray-500 transition-transform ${expandedCourse === course._id ? 'transform rotate-180' : ''
+                      }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
