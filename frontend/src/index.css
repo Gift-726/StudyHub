@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+  
+  body {
+    @apply font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  #root {
+    @apply w-full min-h-screen;
+  }
+  
+  /* Fix font rendering on mobile */
+  input, textarea, select, button {
+    font-family: inherit;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .btn-purple {
+    background-color: #4B2E83;
+  }
+  
+  .btn-purple:hover:not(:disabled) {
+    background-color: #3d2469;
+  }
+  
+  .text-purple-brand {
+    color: #4B2E83;
+  }
+  
+  .bg-purple-brand {
+    background-color: #4B2E83;
+  }
+}
+

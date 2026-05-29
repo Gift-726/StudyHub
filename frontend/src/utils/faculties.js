@@ -1,0 +1,86 @@
+// Faculties and their departments
+export const faculties = {
+  'School of Agriculture and Agricultural Technology': [
+    'Agricultural Extension and Communication (AEC)',
+    'Food Science Technology (FST)',
+    'Crop Science and Pest Management (CSP)',
+    'Forestry and Wood Technology (FWT)',
+    'Fisheries and Aquaculture Technology (FAT)',
+    'Agricultural Resources Economics (ARE)',
+    'Ecotourism and Wildlife Management (EWM)',
+    'Animal Production and Health (APH)',
+    'Nutrition and Dietetics (NDT)',
+  ],
+  'School of Electrical Systems Engineering': [
+    'Computer Engineering (CPE)',
+    'Electrical and Electronics Engineering (EEE)',
+    'Information and Communication Technology (ICT)',
+    'Mechatronics Engineering (MCE)',
+    'Biomedical Engineering (BME)',
+  ],
+  'School of Infrastructural, Minerals and Manufacturing Technology': [
+    'Chemical Engineering (CEE)',
+    'Civil and Environmental Engineering (CVE)',
+    'Agricultural and Environmental Engineering (AGE)',
+    'Mechanical Engineering (MEE)',
+    'Mining Engineering (MNE)',
+    'Materials and Metallurgical Engineering (MME)',
+    'Industrial and Production Engineering (IPE)',
+  ],
+  'School of Earth and Mineral Sciences': [
+    'Applied Geology (AGY)',
+    'Applied Geophysics (AGP)',
+    'Remote Sensing and GIS (RSG)',
+    'Meteorology and Climate Science (MCS)',
+    'Marine Science and Technology (MST)',
+  ],
+  'School of Environmental Technology': [
+    'Architecture (ARC)',
+    'Surveying and Geoinformatics (SVG)',
+    'Urban and Regional Planning (URP)',
+    'Estate Management (ESM)',
+    'Building Technology (BDG)',
+    'Industrial Design (IDD)',
+    'Quantity Surveying (QSV)',
+  ],
+  'School of Physical Sciences': [
+    'Physics Electronics (PHY)',
+    'Industrial Chemistry (CHE)',
+    'Mathematical Sciences (MTS)',
+    'Statistics (STA)',
+    'Library and Information Science (LIS)',
+    'Education Technology (EDT)',
+  ],
+  'School of Life Sciences': [
+    'Biology (BIO)',
+    'Biochemistry (BCH)',
+    'Biotechnology (BTH)',
+    'Microbiology (MCB)',
+  ],
+  'School of Logistics and Innovation Technology': [
+    'Logistics and Transport Technology (LTT)',
+    'Project Management Technology (PMT)',
+    'Security and Investment Management Technology (SIM)',
+    'Business Information Technology (BIT)',
+    'Entrepreneurship and Management Technology (ENT)',
+  ],
+  'School of Computing (SC)': [
+    'Computer Science (CSC)',
+    'Cyber Security (CYS)',
+    'Software Engineering (SEN)',
+    'Information Technology (IFT)',
+    'Information Systems (IFS)',
+    'Data Science Processing (DSP)',
+  ],
+  'College of Health Sciences': [
+    'School of Basic Medical Sciences - Physiology (PHS)',
+    'School of Basic Medical Sciences - Human Anatomy (ANA)',
+    'School of Clinical Sciences - Medical Laboratory Sciences (MLS)',
+    'School of Clinical Sciences - Public Health (PBH)',
+    'MBBS',
+    'Nursing Science',
+  ],
+}
+
+export const levels = ['100', '200', '300', '400', '500']
+
