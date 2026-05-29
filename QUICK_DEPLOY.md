@@ -11,7 +11,7 @@ Follow these steps to get your app online in 15 minutes!
 5. Click "Connect" → "Connect your application"
 6. Copy the connection string
 7. Replace `<password>` with your database password
-8. Add `/studyhub` at the end: `mongodb+srv://user:password@cluster.mongodb.net/studyhub`
+8. Add `/studyhub` at the end: `mongodb+srv://<username>:<password>@<cluster>.mongodb.net/studyhub`
 9. Go to "Network Access" → "Add IP Address" → "Allow Access from Anywhere"
 
 **Save this connection string - you'll need it!**

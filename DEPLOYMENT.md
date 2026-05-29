@@ -30,9 +30,9 @@ This guide will help you deploy your Studyhub app so others can see it.
 2. **Get Your Connection String:**
    - Click "Connect" on your cluster
    - Choose "Connect your application"
-   - Copy the connection string (looks like: `mongodb+srv://username:password@cluster.mongodb.net/`)
+   - Copy the connection string (looks like: `mongodb+srv://<username>:<password>@<cluster>.mongodb.net/`)
    - Replace `<password>` with your database password
-   - Add database name: `mongodb+srv://username:password@cluster.mongodb.net/studyhub`
+   - Add database name: `mongodb+srv://<username>:<password>@<cluster>.mongodb.net/studyhub`
 
 3. **Set Up Network Access:**
    - Go to "Network Access"
