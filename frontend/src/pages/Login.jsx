@@ -12,9 +12,15 @@ const Login = () => {
     rememberMe: false,
   })
   const [showPassword, setShowPassword] = useState(false)
-  const { login } = useAuth()
+  const { login, loginAsGuest } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
+
+  const handleGuestLogin = () => {
+    loginAsGuest(formData.rememberMe)
+    toast.success('Continuing as Guest Student')
+    navigate('/dashboard')
+  }
 
   const handleChange = (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
@@ -29,10 +35,15 @@ const Login = () => {
     setLoading(true)
 
     try {
-      const result = await login(formData.email, formData.password)
+      const result = await login(formData.email, formData.password, formData.rememberMe)
       if (result.success) {
         toast.success('Logged in successfully!')
-        navigate('/dashboard')
+        const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || ''
+        if (formData.email.toLowerCase() === adminEmail.toLowerCase()) {
+          navigate('/admin/dashboard')
+        } else {
+          navigate('/dashboard')
+        }
       } else {
         toast.error(result.message || 'Login failed')
       }
@@ -162,6 +173,14 @@ const Login = () => {
                 className="w-full py-3 sm:py-3.5 btn-purple text-white rounded border-none text-base font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2 leading-normal"
               >
                 {loading ? 'Logging in...' : 'Log in'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleGuestLogin}
+                className="w-full py-3 sm:py-3.5 bg-white border border-black text-black rounded text-base font-medium cursor-pointer hover:bg-gray-50 transition-colors mt-2 leading-normal"
+              >
+                Continue as Guest
               </button>
 
               {/* Terms */}

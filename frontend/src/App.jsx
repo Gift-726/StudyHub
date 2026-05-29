@@ -8,7 +8,9 @@ import Dashboard from './pages/Dashboard'
 import Courses from './pages/Courses'
 import CourseDetail from './pages/CourseDetail'
 import Quizzes from './pages/Quizzes'
+import Library from './pages/Library'
 import CGPACalculator from './pages/CGPACalculator'
+import Motivation from './pages/Motivation'
 import Forum from './pages/Forum'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
@@ -22,6 +24,7 @@ import NotFound from './pages/NotFound'
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
+  const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || ''
   
   if (loading) {
     return (
@@ -31,7 +34,14 @@ const ProtectedRoute = ({ children }) => {
     )
   }
   
-  return user ? children : <Navigate to="/login" />
+  if (user) {
+    if (user.email?.toLowerCase() === adminEmail.toLowerCase()) {
+      return <Navigate to="/admin/dashboard" />
+    }
+    return children
+  }
+  
+  return <Navigate to="/login" />
 }
 
 // Public Route Component (redirects to dashboard if already logged in)
@@ -149,10 +159,26 @@ function App() {
               } 
             />
             <Route 
+              path="/library" 
+              element={
+                <ProtectedRoute>
+                  <Library />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/cgpa-calculator" 
               element={
                 <ProtectedRoute>
                   <CGPACalculator />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/motivation" 
+              element={
+                <ProtectedRoute>
+                  <Motivation />
                 </ProtectedRoute>
               } 
             />

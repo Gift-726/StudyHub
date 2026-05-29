@@ -245,7 +245,9 @@ const Courses = () => {
                       }
                     `}
                   >
-                    {lvl === 'all' ? 'All Levels' : `${lvl} Level`}
+                    {lvl === 'all' 
+                      ? `All Levels (${allAvailableCourses.length})` 
+                      : `${lvl} Level (${allAvailableCourses.filter(c => String(c.level) === lvl).length})`}
                   </button>
                 ))}
               </div>

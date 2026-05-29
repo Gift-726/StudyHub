@@ -16,6 +16,24 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true)
   const [importing, setImporting] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [academicSeason, setAcademicSeason] = useState('second-semester')
+
+  useEffect(() => {
+    let saved = localStorage.getItem('studyhub_academic_season')
+    // Auto-transition to second semester since March 2, 2026 has passed
+    const firstSemDate = new Date('2026-03-02T00:00:00.000Z')
+    if (saved === 'first-semester' && new Date() > firstSemDate) {
+      saved = 'second-semester'
+      localStorage.setItem('studyhub_academic_season', 'second-semester')
+    }
+    setAcademicSeason(saved || 'second-semester')
+  }, [])
+
+  const handleSeasonChange = (season) => {
+    localStorage.setItem('studyhub_academic_season', season)
+    setAcademicSeason(season)
+    toast.success(`Academic season updated to: ${season.replace('-', ' ').toUpperCase()}`)
+  }
 
   // Form states
   const [importType, setImportType] = useState('playlist') // 'playlist' or 'video'
@@ -244,6 +262,24 @@ const AdminDashboard = () => {
   return (
     <AdminLayout>
       <div>
+        {/* Academic Season Panel */}
+        <div className="mb-6 bg-white rounded-lg shadow-sm p-6 border border-gray-150">
+          <h2 className="text-xl font-bold mb-2">Academic Season Control</h2>
+          <p className="text-sm text-gray-500 mb-4">Toggle the current calendar phase of the university. This dynamically changes countdown deadlines and motivation types on student homepages.</p>
+          <div className="flex flex-wrap gap-4">
+            {['first-semester', 'second-semester', 'academic-break'].map((season) => (
+              <button
+                key={season}
+                type="button"
+                onClick={() => handleSeasonChange(season)}
+                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${academicSeason === season ? 'bg-purple-brand text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              >
+                {season === 'first-semester' ? 'First Semester' : season === 'second-semester' ? 'Second Semester' : 'Academic Break'}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Manage Courses Section - Moved to Top */}
         <div className="mb-6 bg-white rounded-lg shadow-sm p-6">
           <h2 className="text-xl font-bold mb-4">Manage Courses</h2>

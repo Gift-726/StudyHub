@@ -11,6 +11,7 @@ export const markVideoComplete = async (req, res) => {
     const progress = await VideoProgress.findOneAndUpdate(
       { userId, courseId, videoId },
       {
+        topicId,
         completed: true,
         watchTime: watchTime || 0,
         completedAt: new Date(),
@@ -38,6 +39,7 @@ export const updateWatchTime = async (req, res) => {
     await VideoProgress.findOneAndUpdate(
       { userId, courseId, videoId },
       {
+        topicId,
         watchTime,
         lastWatchedAt: new Date()
       },
@@ -60,6 +62,7 @@ export const trackVideoWatch = async (req, res) => {
     await VideoProgress.findOneAndUpdate(
       { userId, courseId, videoId },
       {
+        topicId,
         lastWatchedAt: new Date()
       },
       { upsert: true, new: true }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import YouTubePlayer from '../components/YouTubePlayer'
+import HigherLevelPrep from '../components/HigherLevelPrep'
 import { coursesAPI, progressAPI } from '../services/api'
 import toast from 'react-hot-toast'
 
@@ -260,6 +261,13 @@ const CourseDetail = () => {
             </div>
           )}
 
+          {/* Higher Level Prep Tools for 300L+ */}
+          {(course?.level === '300' || course?.level === '400' || course?.level === '500') && (
+            <div className="mb-6">
+              <HigherLevelPrep courseTitle={course?.title} courseLevel={course?.level} />
+            </div>
+          )}
+
           {/* Start Learning Button */}
           <button
             onClick={handleStartLearning}
@@ -288,12 +296,14 @@ const CourseDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Lessons List */}
           <div className="lg:col-span-1 bg-white rounded-lg shadow-sm p-4">
-            <h2 className="text-xl font-bold mb-4">Lessons</h2>
-            <div className="space-y-2 max-h-[600px] overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4">Lessons Outline</h2>
+            <div className="space-y-2 max-h-[600px] overflow-y-auto font-sans">
               {topics.length > 0 ? (
-                topics.map((topic) => (
+                topics.map((topic, topicIdx) => (
                   <div key={topic._id} className="mb-4">
-                    <h3 className="font-semibold text-gray-900 mb-2 text-sm">{topic.title}</h3>
+                    <h3 className="font-extrabold text-gray-900 mb-2 text-xs uppercase tracking-wider">
+                      Topic {topicIdx + 1}: {topic.title}
+                    </h3>
                     <div className="space-y-1">
                       {topic.videos && topic.videos.map((video, videoIndex) => {
                         const isSelected = selectedVideo?.youtubeId === video.youtubeId
@@ -328,7 +338,7 @@ const CourseDetail = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="text-sm font-medium line-clamp-2 text-gray-900">
-                                {video.title}
+                                {topicIdx + 1}.{videoIndex + 1} {video.title}
                               </div>
                               {video.duration && (
                                 <div className="text-xs text-gray-500 mt-1">
@@ -410,8 +420,8 @@ const CourseDetail = () => {
                           rel="noopener noreferrer"
                           className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-colors"
                         >
-                          <span className="text-2xl">
-                            {material.type === 'pdf' ? '📄' : material.type === 'past-question' ? '📝' : '📋'}
+                          <span className="text-xs font-bold bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                            {material.type === 'pdf' ? 'PDF' : material.type === 'past-question' ? 'PQ' : 'DOC'}
                           </span>
                           <div>
                             <p className="font-medium">{material.title}</p>

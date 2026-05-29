@@ -36,30 +36,22 @@ const CountdownTimer = ({ targetDate }) => {
   }, [targetDate])
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 ">
-      <div className="text-center">
-        <div className="bg-purple bg-opacity-20 rounded-lg p-4 mb-2">
-          <div className="text-3xl md:text-4xl font-bold">{timeLeft.days}</div>
-        </div>
-        <div className="text-sm md:text-base text-purple-100">Days</div>
+    <div className="grid grid-cols-4 gap-3 max-w-sm mt-3">
+      <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl py-2 px-3 border border-white/10 shadow-sm">
+        <div className="text-xl md:text-2xl font-black text-white leading-none">{timeLeft.days}</div>
+        <div className="text-[10px] text-purple-200 font-extrabold uppercase tracking-wider mt-1.5">Days</div>
       </div>
-      <div className="text-center">
-        <div className="bg-white bg-opacity-20 rounded-lg p-4 mb-2">
-          <div className="text-3xl md:text-4xl font-bold">{String(timeLeft.hours).padStart(2, '0')}</div>
-        </div>
-        <div className="text-sm md:text-base text-purple-100">Hours</div>
+      <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl py-2 px-3 border border-white/10 shadow-sm">
+        <div className="text-xl md:text-2xl font-black text-white leading-none">{String(timeLeft.hours).padStart(2, '0')}</div>
+        <div className="text-[10px] text-purple-200 font-extrabold uppercase tracking-wider mt-1.5">Hours</div>
       </div>
-      <div className="text-center">
-        <div className="bg-white bg-opacity-20 rounded-lg p-4 mb-2">
-          <div className="text-3xl md:text-4xl font-bold">{String(timeLeft.minutes).padStart(2, '0')}</div>
-        </div>
-        <div className="text-sm md:text-base text-purple-100">Minutes</div>
+      <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl py-2 px-3 border border-white/10 shadow-sm">
+        <div className="text-xl md:text-2xl font-black text-white leading-none">{String(timeLeft.minutes).padStart(2, '0')}</div>
+        <div className="text-[10px] text-purple-200 font-extrabold uppercase tracking-wider mt-1.5">Minutes</div>
       </div>
-      <div className="text-center">
-        <div className="bg-white bg-opacity-20 rounded-lg p-4 mb-2">
-          <div className="text-3xl md:text-4xl font-bold">{String(timeLeft.seconds).padStart(2, '0')}</div>
-        </div>
-        <div className="text-sm md:text-base text-purple-100">Seconds</div>
+      <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl py-2 px-3 border border-white/10 shadow-sm">
+        <div className="text-xl md:text-2xl font-black text-white leading-none">{String(timeLeft.seconds).padStart(2, '0')}</div>
+        <div className="text-[10px] text-purple-200 font-extrabold uppercase tracking-wider mt-1.5">Seconds</div>
       </div>
     </div>
   )

@@ -31,14 +31,7 @@ const Forum = () => {
   }
 
   const getPlatformIcon = (platform) => {
-    const icons = {
-      WhatsApp: '💬',
-      Telegram: '✈️',
-      Discord: '🎮',
-      Facebook: '👥',
-      Other: '🔗'
-    }
-    return icons[platform] || '🔗'
+    return ''
   }
 
   const getPlatformColor = (platform) => {

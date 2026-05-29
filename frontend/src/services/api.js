@@ -12,7 +12,7 @@ const api = axios.create({
 // Add token to requests
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -30,6 +30,9 @@ api.interceptors.response.use(
     // Only redirect on 401 if we're not already on login/signup pages
     if (error.response?.status === 401 && !window.location.pathname.includes('/login') && !window.location.pathname.includes('/signup')) {
       localStorage.removeItem('token')
+      localStorage.removeItem('isGuest')
+      sessionStorage.removeItem('token')
+      sessionStorage.removeItem('isGuest')
       window.location.href = '/login'
     }
     return Promise.reject(error)
@@ -96,6 +99,11 @@ export const courseAdminAPI = {
   updateForumLink: (courseId, linkId, data) => api.put(`/course-admin/courses/${courseId}/forum-links/${linkId}`, data),
   deleteForumLink: (courseId, linkId) => api.delete(`/course-admin/courses/${courseId}/forum-links/${linkId}`),
   updateCourse: (courseId, data) => api.put(`/course-admin/courses/${courseId}`, data),
+}
+
+// AI API
+export const aiAPI = {
+  askStudyBuddy: (prompt) => api.post('/ai/ask', { prompt }),
 }
 
 export default api

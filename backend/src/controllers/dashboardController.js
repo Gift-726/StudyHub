@@ -29,13 +29,13 @@ export const getDashboard = async (req, res) => {
     const totalMinutes = studySessions.reduce((sum, session) => sum + (session.duration || 0), 0)
     const studyHours = Math.round(totalMinutes / 60)
 
-    // Get upcoming exam (March 2, 2026)
-    const examDate = new Date('2026-03-02T00:00:00.000Z')
+    // Get upcoming exam (August 17, 2026)
+    const examDate = new Date('2026-08-17T00:00:00.000Z')
     const now = new Date()
     const daysRemaining = Math.ceil((examDate - now) / (1000 * 60 * 60 * 24))
     const upcomingExam = {
       daysRemaining: daysRemaining > 0 ? daysRemaining : 0,
-      examName: 'First Semester Exams',
+      examName: 'Second Semester Exams',
       startDate: examDate.toISOString()
     }
 

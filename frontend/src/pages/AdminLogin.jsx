@@ -10,7 +10,7 @@ const AdminLogin = () => {
     password: '',
   })
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  const { login, logout } = useAuth()
   const navigate = useNavigate()
 
   const handleChange = (e) => {
@@ -35,8 +35,7 @@ const AdminLogin = () => {
         } else {
           toast.error('Admin access only')
           // Logout the user
-          localStorage.removeItem('token')
-          window.location.reload()
+          logout()
         }
       } else {
         toast.error(result.message || 'Login failed')

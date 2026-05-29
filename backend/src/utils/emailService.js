@@ -28,13 +28,7 @@ const createTransporter = () => {
 // Send OTP email
 export const sendOTPEmail = async (email, otpCode) => {
   try {
-    const transporter = createTransporter()
-
-    const mailOptions = {
-      from: `"StudyHub" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: 'Password Reset OTP - StudyHub',
-      html: `
+    const htmlContent = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -86,8 +80,9 @@ export const sendOTPEmail = async (email, otpCode) => {
           </table>
         </body>
         </html>
-      `,
-      text: `
+      `
+
+    const textContent = `
         Password Reset OTP - Studyhub
         
         Hello,
@@ -101,7 +96,44 @@ export const sendOTPEmail = async (email, otpCode) => {
         If you didn't request this password reset, please ignore this email or contact support if you have concerns.
         
         © ${new Date().getFullYear()} Studyhub. All rights reserved.
-      `,
+      `
+
+    // Check if Resend API Key is provided (strongly recommended for hosted environments like Render/Vercel)
+    if (process.env.RESEND_API_KEY) {
+      console.log('Sending email via Resend API (HTTP)...')
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: process.env.EMAIL_FROM || 'StudyHub <onboarding@resend.dev>',
+          to: email,
+          subject: 'Password Reset OTP - StudyHub',
+          html: htmlContent,
+          text: textContent,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Resend API error')
+      }
+
+      const info = await response.json()
+      console.log('Email sent successfully via Resend:', info.id)
+      return { success: true, messageId: info.id }
+    }
+
+    // Fallback to Nodemailer SMTP
+    const transporter = createTransporter()
+    const mailOptions = {
+      from: `"StudyHub" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Password Reset OTP - StudyHub',
+      html: htmlContent,
+      text: textContent,
     }
 
     const info = await transporter.sendMail(mailOptions)
@@ -113,8 +145,15 @@ export const sendOTPEmail = async (email, otpCode) => {
   }
 }
 
-// Verify email configuration AIzaSyDQtNg5jyHHAx3F-8pZG7IiES18ksW206A
+// Verify email configuration
 export const verifyEmailConfig = async () => {
+  // If Resend API Key is configured, bypass SMTP verification
+  if (process.env.RESEND_API_KEY) {
+    console.log('✅ Resend API configuration detected. Ready to send messages.')
+    return true
+  }
+
+  // Otherwise verify SMTP transporter
   try {
     const transporter = createTransporter()
     await transporter.verify()
@@ -125,4 +164,5 @@ export const verifyEmailConfig = async () => {
     return false
   }
 }
+
 

@@ -31,7 +31,7 @@ EMAIL_PASSWORD=your-gmail-app-password
 **Important Notes:**
 - Replace `your_super_secret_jwt_key_here_change_this_in_production` with a strong, random string for production
 - If using MongoDB Atlas, replace `MONGODB_URI` with your Atlas connection string
-- Example Atlas URI: `mongodb+srv://username:password@cluster.mongodb.net/studyhub`
+- Example Atlas URI: `mongodb+srv://<username>:<password>@<cluster>.mongodb.net/studyhub`
 - **For Email Setup:** See `EMAIL_SETUP.md` for detailed instructions on configuring email (Gmail, SMTP, etc.)
 
 ### Frontend (.env file in `frontend/` directory)

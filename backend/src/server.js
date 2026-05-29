@@ -14,6 +14,7 @@ import courseRoutes from './routes/courseRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
 import courseAdminRoutes from './routes/courseAdminRoutes.js'
 import progressRoutes from './routes/progressRoutes.js'
+import aiRoutes from './routes/aiRoutes.js'
 
 // Load environment variables
 dotenv.config()
@@ -42,7 +43,7 @@ app.use(
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: process.env.NODE_ENV === 'development' ? 10000 : 100, // limit each IP to 100 requests per windowMs (10000 in dev)
 })
 app.use('/api/', limiter)
 
@@ -60,6 +61,7 @@ app.use('/api/courses', courseRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/course-admin', courseAdminRoutes)
 app.use('/api/progress', progressRoutes)
+app.use('/api/ai', aiRoutes)
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -71,7 +73,11 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT || 5000
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
+  })
+}
+
+export default app
 

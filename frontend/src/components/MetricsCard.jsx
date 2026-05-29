@@ -1,32 +1,12 @@
-const MetricsCard = ({ title, value, icon }) => {
+const MetricsCard = ({ title, value }) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-gray-600 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
-        </div>
-        {icon && (
-          <div className="text-gray-400">
-            {icon}
-          </div>
-        )}
+    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+      <div className="flex flex-col justify-between">
+        <p className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-1">{value}</p>
+        <p className="text-sm font-semibold text-gray-400 tracking-wide">{title}</p>
       </div>
     </div>
   )
 }
 
 export default MetricsCard
-
-
-
-
-
-
-
-
-
-
-
-
-
