@@ -6,8 +6,12 @@ export default {
   ],
   theme: {
     extend: {
+      colors: {
+        'purple-brand': '#4B2E83',
+      },
       fontFamily: {
-        sans: ['Urbanist', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
+        heading: ['Playfair Display', 'serif'],
       },
     },
   },

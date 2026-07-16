@@ -262,7 +262,7 @@ const CourseDetail = () => {
           )}
 
           {/* Higher Level Prep Tools for 300L+ */}
-          {(course?.level === '300' || course?.level === '400' || course?.level === '500') && (
+          {(!isNaN(Number(course?.level)) && Number(course?.level) >= 300) && (
             <div className="mb-6">
               <HigherLevelPrep courseTitle={course?.title} courseLevel={course?.level} />
             </div>

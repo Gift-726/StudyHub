@@ -6,66 +6,93 @@ const CourseCard = ({ course }) => {
   const formatDate = (dateString) => {
     if (!dateString) return 'No activity yet'
     const date = new Date(dateString)
-    return `Last activity on ${date.toLocaleDateString('en-US', { 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
-    })}`
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
   const handleClick = () => {
     navigate(`/courses/${course._id || course.id}`)
   }
 
+  const progress = course.progress || 0
+  const isCompleted = progress === 100
+  const progressColor = isCompleted
+    ? 'from-emerald-400 to-emerald-500'
+    : progress > 50
+    ? 'from-[#4B2E83] to-[#7c5cbf]'
+    : 'from-[#4B2E83] to-[#9b7dd4]'
+
   return (
-    <div 
+    <div
       onClick={handleClick}
-      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+      className="group bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:border-[#4B2E83]/20"
     >
-      <div className="flex flex-col md:flex-row">
+      <div className="flex flex-col sm:flex-row">
+        {/* Left accent bar */}
+        <div className="w-full sm:w-1.5 h-1.5 sm:h-auto bg-gradient-to-b from-[#4B2E83] to-[#7c5cbf] flex-shrink-0 rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl" />
+
         {/* Course Image */}
-        <div className="w-full md:w-48 h-48 md:h-auto flex-shrink-0">
+        <div className="w-full sm:w-44 h-44 sm:h-auto flex-shrink-0 overflow-hidden">
           <img
             src={course.image || 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop'}
             alt={course.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </div>
 
         {/* Course Details */}
-        <div className="flex-1 p-4 md:p-6 relative">
-          {/* Units Badge */}
-          <div className="absolute top-4 right-4 bg-purple-100 text-purple-brand px-3 py-1 rounded-full text-sm font-semibold">
-            {course.units || 3} Units
+        <div className="flex-1 p-5 flex flex-col justify-between">
+          <div>
+            <div className="flex items-start justify-between gap-3 mb-2">
+              {/* Topics & title */}
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-[#4B2E83]/60 uppercase tracking-wider mb-1">
+                  {course.topics || 0} {course.topics === 1 ? 'Topic' : 'Topics'}
+                </p>
+                <h3 className="text-lg font-bold text-gray-900 leading-snug group-hover:text-[#4B2E83] transition-colors">
+                  {course.title}
+                </h3>
+              </div>
+
+              {/* Units badge */}
+              <span className="flex-shrink-0 bg-[#4B2E83]/10 text-[#4B2E83] text-xs font-bold px-3 py-1 rounded-full">
+                {course.units || 3} Units
+              </span>
+            </div>
+
+            {/* Status badge */}
+            {isCompleted && (
+              <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-full mb-3">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                Completed
+              </span>
+            )}
           </div>
-
-          {/* Topics Count */}
-          <p className="text-sm text-gray-600 mb-2">{course.topics || 0} Topics</p>
-
-          {/* Course Title */}
-          <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-3 pr-16 md:pr-20">
-            {course.title}
-          </h3>
 
           {/* Progress Section */}
-          <div className="mt-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">Progress</span>
-              <span className="text-sm font-semibold text-purple-brand">{course.progress || 0}%</span>
+          <div className="mt-3">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-semibold text-gray-600">Progress</span>
+              <span className={`text-xs font-bold ${isCompleted ? 'text-emerald-600' : 'text-[#4B2E83]'}`}>
+                {progress}%
+              </span>
             </div>
-            {/* Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
               <div
-                className="bg-purple-brand h-2 rounded-full transition-all duration-300"
-                style={{ width: `${course.progress || 0}%` }}
+                className={`bg-gradient-to-r ${progressColor} h-2.5 rounded-full transition-all duration-700`}
+                style={{ width: `${progress}%` }}
               />
             </div>
-          </div>
 
-          {/* Last Activity */}
-          <p className="text-sm text-gray-500 mt-3">
-            {formatDate(course.lastActivity)}
-          </p>
+            {/* Last activity */}
+            <p className="text-xs text-gray-400 mt-2 flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {course.lastActivity ? `Last active ${formatDate(course.lastActivity)}` : 'No activity yet'}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -73,4 +100,3 @@ const CourseCard = ({ course }) => {
 }
 
 export default CourseCard
-

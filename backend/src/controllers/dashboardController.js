@@ -4,6 +4,7 @@ import Enrollment from '../models/Enrollment.js'
 import StudySession from '../models/StudySession.js'
 import VideoProgress from '../models/VideoProgress.js'
 import Topic from '../models/Topic.js'
+import Setting from '../models/Setting.js'
 
 // @desc    Get dashboard data
 // @route   GET /api/dashboard
@@ -56,7 +57,9 @@ export const getDashboard = async (req, res) => {
           title: video?.title || 'Video',
           course: progress.courseId?.title || 'Unknown Course',
           topic: progress.topicId?.title || '',
-          watchedAt: progress.lastWatchedAt
+          watchedAt: progress.lastWatchedAt,
+          youtubeId: progress.videoId,
+          courseId: progress.courseId?._id
         }
       })
 
@@ -69,6 +72,19 @@ export const getDashboard = async (req, res) => {
     })
   } catch (error) {
     console.error('Dashboard error:', error)
+    res.status(500).json({ message: 'Server error occurred' })
+  }
+}
+
+export const getAcademicSeason = async (req, res) => {
+  try {
+    let setting = await Setting.findOne({ key: 'academic_season' })
+    if (!setting) {
+      setting = await Setting.create({ key: 'academic_season', value: 'second-semester' })
+    }
+    res.json({ season: setting.value })
+  } catch (error) {
+    console.error('Get season error:', error)
     res.status(500).json({ message: 'Server error occurred' })
   }
 }

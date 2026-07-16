@@ -2,6 +2,7 @@ import Course from '../models/Course.js'
 import Topic from '../models/Topic.js'
 import { extractPlaylistId, fetchPlaylistVideos, extractVideoId, fetchSingleVideo } from '../services/youtubeService.js'
 import multer from 'multer'
+import Setting from '../models/Setting.js'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
@@ -367,6 +368,26 @@ export const createCourse = async (req, res) => {
       return res.status(400).json({ message: 'Course with this title already exists' })
     }
     res.status(500).json({ message: 'Failed to create course' })
+  }
+}
+
+export const updateAcademicSeason = async (req, res) => {
+  try {
+    const { season } = req.body
+    if (!season) {
+      return res.status(400).json({ message: 'Season is required' })
+    }
+    let setting = await Setting.findOne({ key: 'academic_season' })
+    if (setting) {
+      setting.value = season
+      await setting.save()
+    } else {
+      setting = await Setting.create({ key: 'academic_season', value: season })
+    }
+    res.json({ message: 'Academic season updated successfully', season: setting.value })
+  } catch (error) {
+    console.error('Update season error:', error)
+    res.status(500).json({ message: 'Server error' })
   }
 }
 

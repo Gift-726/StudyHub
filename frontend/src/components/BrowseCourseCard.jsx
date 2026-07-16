@@ -4,90 +4,110 @@ const BrowseCourseCard = ({ course, isEnrolled, onEnroll, enrolling }) => {
   const navigate = useNavigate()
 
   const handleClick = () => {
-    if (isEnrolled) {
-      navigate(`/courses/${course._id || course.id}`)
-    }
+    if (isEnrolled) navigate(`/courses/${course._id || course.id}`)
   }
 
   const handleEnrollClick = (e) => {
     e.stopPropagation()
-    if (!isEnrolled && onEnroll) {
-      onEnroll(course._id || course.id)
-    }
+    if (!isEnrolled && onEnroll) onEnroll(course._id || course.id)
   }
 
+  const levelColors = {
+    '100': 'bg-emerald-500',
+    '200': 'bg-blue-500',
+    '300': 'bg-amber-500',
+    '400': 'bg-rose-500',
+    '500': 'bg-purple-600',
+  }
+  const levelBg = levelColors[String(course.level)] || 'bg-gray-500'
+
   return (
-    <div 
+    <div
       onClick={isEnrolled ? handleClick : undefined}
-      className={`bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow ${isEnrolled ? 'cursor-pointer' : ''}`}
+      className={`group bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-[#4B2E83]/20 ${isEnrolled ? 'cursor-pointer' : ''}`}
     >
-      <div className="flex flex-col md:flex-row">
-        {/* Course Image */}
-        <div className="w-full md:w-48 h-48 md:h-auto flex-shrink-0">
-          <img
-            src={course.image || 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop'}
-            alt={course.title}
-            className="w-full h-full object-cover"
-          />
-        </div>
+      {/* Image */}
+      <div className="relative w-full h-44 overflow-hidden flex-shrink-0">
+        <img
+          src={course.image || 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&h=400&fit=crop'}
+          alt={course.title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
-        {/* Course Details */}
-        <div className="flex-1 p-4 md:p-6 relative">
-          {/* Units Badge */}
-          <div className="absolute top-4 right-4 bg-purple-100 text-purple-brand px-3 py-1 rounded-full text-sm font-semibold">
-            {course.units || 3} Units
-          </div>
-
-          {/* Level Badge */}
+        {/* Badges on image */}
+        <div className="absolute top-3 left-3 flex gap-2">
           {course.level && (
-            <div className="absolute top-4 right-20 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold">
-              {course.level} Level
-            </div>
+            <span className={`${levelBg} text-white text-xs font-bold px-2.5 py-1 rounded-full shadow`}>
+              {course.level}L
+            </span>
           )}
-
-          {/* Topics Count */}
-          <p className="text-sm text-gray-600 mb-2">{course.topics || 0} Topics</p>
-
-          {/* Course Title */}
-          <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2 pr-32">
-            {course.title}
-          </h3>
-
-          {/* Description */}
-          {course.description && (
-            <p className="text-sm text-gray-600 mb-4 line-clamp-2">{course.description}</p>
-          )}
-
-          {/* Faculty/Department */}
-          <div className="text-sm text-gray-500 mb-4">
-            {course.faculty && <p>{course.faculty}</p>}
-            {course.department && <p>{course.department}</p>}
-          </div>
-
-          {/* Enroll Button or View Button */}
-          <div className="mt-4">
-            {isEnrolled ? (
-              <button
-                onClick={handleClick}
-                className="px-6 py-2 btn-purple text-white rounded-lg hover:bg-purple-700 transition-colors"
-              >
-                View Course
-              </button>
-            ) : (
-              <button
-                onClick={handleEnrollClick}
-                disabled={enrolling}
-                className="px-6 py-2 btn-purple text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {enrolling ? 'Enrolling...' : 'Enroll Now'}
-              </button>
-            )}
-          </div>
         </div>
+        <div className="absolute top-3 right-3">
+          <span className="bg-white/90 backdrop-blur-sm text-[#4B2E83] text-xs font-bold px-2.5 py-1 rounded-full shadow">
+            {course.units || 3} Units
+          </span>
+        </div>
+
+        {/* Enrolled ribbon */}
+        {isEnrolled && (
+          <div className="absolute bottom-0 left-0 right-0 bg-[#4B2E83]/90 py-1.5 text-center">
+            <span className="text-white text-xs font-semibold tracking-wide">✓ Enrolled</span>
+          </div>
+        )}
+      </div>
+
+      {/* Card Body */}
+      <div className="flex flex-col flex-1 p-5">
+        {/* Topics count */}
+        <p className="text-xs font-semibold text-[#4B2E83]/70 uppercase tracking-wider mb-1.5">
+          {course.topics || 0} {course.topics === 1 ? 'Topic' : 'Topics'}
+        </p>
+
+        {/* Title */}
+        <h3 className="text-base font-bold text-gray-900 leading-snug mb-2 line-clamp-2 group-hover:text-[#4B2E83] transition-colors">
+          {course.title}
+        </h3>
+
+        {/* Faculty / Dept */}
+        <div className="flex-1 mb-4">
+          {course.faculty && (
+            <p className="text-xs text-gray-500 leading-relaxed">{course.faculty}</p>
+          )}
+          {course.department && (
+            <p className="text-xs text-gray-400 leading-relaxed line-clamp-1">{course.department}</p>
+          )}
+        </div>
+
+        {/* CTA Button */}
+        {isEnrolled ? (
+          <button
+            onClick={handleClick}
+            className="w-full py-2.5 bg-gradient-to-r from-[#4B2E83] to-[#5e3da1] text-white text-sm font-bold rounded-xl hover:shadow-lg hover:shadow-[#4B2E83]/25 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+          >
+            View Course →
+          </button>
+        ) : (
+          <button
+            onClick={handleEnrollClick}
+            disabled={enrolling}
+            className="w-full py-2.5 border-2 border-[#4B2E83] text-[#4B2E83] text-sm font-bold rounded-xl hover:bg-[#4B2E83] hover:text-white hover:shadow-lg hover:shadow-[#4B2E83]/25 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          >
+            {enrolling ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Enrolling...
+              </span>
+            ) : 'Enroll Now'}
+          </button>
+        )}
       </div>
     </div>
   )
 }
 
 export default BrowseCourseCard
-

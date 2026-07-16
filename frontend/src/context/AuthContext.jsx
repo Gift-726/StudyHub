@@ -23,7 +23,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.getItem('isGuest') === 'true' || 
       sessionStorage.getItem('isGuest') === 'true'
     if (isGuestSession) {
+      const guestId = localStorage.getItem('guestId') || sessionStorage.getItem('guestId') || 'guest'
       setUser({
+        _id: guestId,
         isGuest: true,
         fullName: 'Guest Student',
         email: 'guest@studyhub.com',
@@ -51,28 +53,36 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const loginAsGuest = (rememberMe = false) => {
-    const guestUser = {
-      isGuest: true,
-      fullName: 'Guest Student',
-      email: 'guest@studyhub.com',
-      level: '100',
-      faculty: 'Science & Tech',
-      department: 'Computer Science'
-    }
-    setUser(guestUser)
-    setToken('guest-token')
-    
-    if (rememberMe) {
-      localStorage.setItem('token', 'guest-token')
-      localStorage.setItem('isGuest', 'true')
-      sessionStorage.removeItem('token')
-      sessionStorage.removeItem('isGuest')
-    } else {
-      sessionStorage.setItem('token', 'guest-token')
-      sessionStorage.setItem('isGuest', 'true')
-      localStorage.removeItem('token')
-      localStorage.removeItem('isGuest')
+  const loginAsGuest = async (rememberMe = false) => {
+    try {
+      const response = await authAPI.guestLogin()
+      const { token: newToken, ...guestUser } = response.data
+      setUser(guestUser)
+      setToken(newToken)
+      
+      const guestId = guestUser._id || guestUser.id || 'guest'
+      const currentCount = parseInt(localStorage.getItem(`loginCount_${guestId}`) || '0', 10)
+      localStorage.setItem(`loginCount_${guestId}`, (currentCount + 1).toString())
+      
+      if (rememberMe) {
+        localStorage.setItem('token', newToken)
+        localStorage.setItem('isGuest', 'true')
+        localStorage.setItem('guestId', guestId)
+        sessionStorage.removeItem('token')
+        sessionStorage.removeItem('isGuest')
+        sessionStorage.removeItem('guestId')
+      } else {
+        sessionStorage.setItem('token', newToken)
+        sessionStorage.setItem('isGuest', 'true')
+        sessionStorage.setItem('guestId', guestId)
+        localStorage.removeItem('token')
+        localStorage.removeItem('isGuest')
+        localStorage.removeItem('guestId')
+      }
+      return { success: true }
+    } catch (error) {
+      console.error('Guest login failed:', error)
+      return { success: false, message: error.response?.data?.message || 'Guest login failed' }
     }
   }
 
@@ -95,6 +105,10 @@ export const AuthProvider = ({ children }) => {
       }
       
       setUser(userData)
+      const userId = userData._id || userData.id || 'anonymous'
+      const currentCount = parseInt(localStorage.getItem(`loginCount_${userId}`) || '0', 10)
+      localStorage.setItem(`loginCount_${userId}`, (currentCount + 1).toString())
+
       return { success: true }
     } catch (error) {
       // Handle validation errors
@@ -119,6 +133,11 @@ export const AuthProvider = ({ children }) => {
       setToken(newToken)
       localStorage.setItem('token', newToken)
       setUser(userInfo)
+
+      const userId = userInfo._id || userInfo.id || 'anonymous'
+      const currentCount = parseInt(localStorage.getItem(`loginCount_${userId}`) || '0', 10)
+      localStorage.setItem(`loginCount_${userId}`, (currentCount + 1).toString())
+
       return { success: true }
     } catch (error) {
       // Handle validation errors
@@ -141,8 +160,10 @@ export const AuthProvider = ({ children }) => {
     setUser(null)
     localStorage.removeItem('token')
     localStorage.removeItem('isGuest')
+    localStorage.removeItem('guestId')
     sessionStorage.removeItem('token')
     sessionStorage.removeItem('isGuest')
+    sessionStorage.removeItem('guestId')
   }
 
   const value = {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { adminAPI } from '../services/api'
+import { adminAPI, dashboardAPI } from '../services/api'
 import toast from 'react-hot-toast'
 import AdminLayout from '../components/AdminLayout'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -19,20 +19,35 @@ const AdminDashboard = () => {
   const [academicSeason, setAcademicSeason] = useState('second-semester')
 
   useEffect(() => {
-    let saved = localStorage.getItem('studyhub_academic_season')
-    // Auto-transition to second semester since March 2, 2026 has passed
-    const firstSemDate = new Date('2026-03-02T00:00:00.000Z')
-    if (saved === 'first-semester' && new Date() > firstSemDate) {
-      saved = 'second-semester'
-      localStorage.setItem('studyhub_academic_season', 'second-semester')
+    const fetchAcademicSeason = async () => {
+      try {
+        const response = await dashboardAPI.getAcademicSeason()
+        if (response.data?.season) {
+          setAcademicSeason(response.data.season)
+        }
+      } catch (error) {
+        console.error('Error fetching academic season:', error)
+        let saved = localStorage.getItem('studyhub_academic_season')
+        const firstSemDate = new Date('2026-03-02T00:00:00.000Z')
+        if (saved === 'first-semester' && new Date() > firstSemDate) {
+          saved = 'second-semester'
+        }
+        setAcademicSeason(saved || 'second-semester')
+      }
     }
-    setAcademicSeason(saved || 'second-semester')
+    fetchAcademicSeason()
   }, [])
 
-  const handleSeasonChange = (season) => {
-    localStorage.setItem('studyhub_academic_season', season)
-    setAcademicSeason(season)
-    toast.success(`Academic season updated to: ${season.replace('-', ' ').toUpperCase()}`)
+  const handleSeasonChange = async (season) => {
+    try {
+      await adminAPI.updateAcademicSeason(season)
+      localStorage.setItem('studyhub_academic_season', season)
+      setAcademicSeason(season)
+      toast.success(`Academic season updated to: ${season.replace('-', ' ').toUpperCase()}`)
+    } catch (error) {
+      console.error('Error updating academic season:', error)
+      toast.error('Failed to update academic season on server')
+    }
   }
 
   // Form states
@@ -263,7 +278,7 @@ const AdminDashboard = () => {
     <AdminLayout>
       <div>
         {/* Academic Season Panel */}
-        <div className="mb-6 bg-white rounded-lg shadow-sm p-6 border border-gray-150">
+        <div className="mb-6 bg-white rounded-lg shadow-sm p-6 border border-gray-200">
           <h2 className="text-xl font-bold mb-2">Academic Season Control</h2>
           <p className="text-sm text-gray-500 mb-4">Toggle the current calendar phase of the university. This dynamically changes countdown deadlines and motivation types on student homepages.</p>
           <div className="flex flex-wrap gap-4">

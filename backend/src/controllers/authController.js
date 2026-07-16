@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { validationResult } from 'express-validator'
 import User from '../models/User.js'
+import mongoose from 'mongoose'
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -113,6 +114,9 @@ const login = async (req, res) => {
 // @access  Private
 const getMe = async (req, res) => {
   try {
+    if (req.user && req.user.isGuest) {
+      return res.json(req.user)
+    }
     const user = await User.findById(req.user._id).select('-password')
     res.json(user)
   } catch (error) {
@@ -120,5 +124,26 @@ const getMe = async (req, res) => {
   }
 }
 
-export { register, login, getMe }
+const guestLogin = async (req, res) => {
+  try {
+    const guestId = new mongoose.Types.ObjectId().toString()
+    const token = jwt.sign({ id: guestId, isGuest: true }, process.env.JWT_SECRET, {
+      expiresIn: '30d',
+    })
+    res.json({
+      _id: guestId,
+      email: 'guest@studyhub.com',
+      fullName: 'Guest Student',
+      faculty: 'Science & Tech',
+      department: 'Computer Science',
+      level: '100',
+      isGuest: true,
+      token,
+    })
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'Server error occurred' })
+  }
+}
+
+export { register, login, getMe, guestLogin }
 

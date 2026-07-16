@@ -1,10 +1,13 @@
 export const askStudyBuddy = async (req, res, next) => {
   try {
     const { prompt } = req.body
+    const user = req.user // Reads req.user set by protect
     
     if (!prompt) {
       return res.status(400).json({ message: 'Prompt is required' })
     }
+
+    console.log(`AI query by user: ${user?.email || 'unknown'} (guest: ${!!user?.isGuest})`)
 
     const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) {
@@ -16,9 +19,15 @@ export const askStudyBuddy = async (req, res, next) => {
     // Call Gemini API directly via HTTP post to avoid library mismatches
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`
     
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => {
+      controller.abort()
+    }, 5000)
+
     try {
       const response = await fetch(geminiUrl, {
         method: 'POST',
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json'
         },
@@ -35,6 +44,7 @@ export const askStudyBuddy = async (req, res, next) => {
         })
       })
 
+      clearTimeout(timeoutId)
       const data = await response.json()
       const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text
       if (reply) {
@@ -43,7 +53,12 @@ export const askStudyBuddy = async (req, res, next) => {
         throw new Error('Unexpected response format from Gemini API')
       }
     } catch (apiError) {
-      console.error('Gemini API request failed. Using backend fallback:', apiError.message)
+      clearTimeout(timeoutId)
+      if (apiError.name === 'AbortError') {
+        console.error('Gemini API request timed out (5s). Using backend fallback.')
+      } else {
+        console.error('Gemini API request failed. Using backend fallback:', apiError.message)
+      }
       const fallbackReply = getHeuristicReply(prompt)
       return res.json({ reply: fallbackReply })
     }

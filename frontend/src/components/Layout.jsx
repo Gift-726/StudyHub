@@ -112,7 +112,7 @@ const Layout = ({ children }) => {
             <div className="flex items-center gap-3">
               <img src={logo} alt="Studyhub" className="w-10 h-10 object-contain" />
               {!sidebarCollapsed && (
-                <span className="text-xl font-bold text-purple-brand">Studyhub</span>
+                <span className="text-xl font-bold text-purple-brand">StudyHub</span>
               )}
             </div>
             {!sidebarCollapsed && (

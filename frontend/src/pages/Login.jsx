@@ -16,10 +16,21 @@ const Login = () => {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
 
-  const handleGuestLogin = () => {
-    loginAsGuest(formData.rememberMe)
-    toast.success('Continuing as Guest Student')
-    navigate('/dashboard')
+  const handleGuestLogin = async () => {
+    setLoading(true)
+    try {
+      const result = await loginAsGuest(formData.rememberMe)
+      if (result.success) {
+        toast.success('Continuing as Guest Student')
+        navigate('/dashboard')
+      } else {
+        toast.error(result.message || 'Guest login failed')
+      }
+    } catch (error) {
+      toast.error('An error occurred during guest login.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleChange = (e) => {
@@ -55,141 +66,237 @@ const Login = () => {
   }
 
   return (
-    <div className="flex w-full h-screen bg-[#faf9f6] overflow-hidden">
-      {/* Left side with background image */}
-      <div className="hidden lg:flex flex-1 relative h-screen overflow-hidden">
+    <div className="flex w-full h-screen overflow-hidden relative">
+      {/* Full-width background image with overlay */}
+      <div className="absolute inset-0 select-none z-0">
         <img 
           src={authBg} 
           alt="Students studying" 
           className="w-full h-full object-cover" 
         />
+        <div className="absolute inset-0 bg-gradient-to-tr from-[#2c1854]/95 via-[#4B2E83]/85 to-[#faf9f6]/20 mix-blend-multiply" />
       </div>
 
-      {/* Right side with form */}
-      <div className="flex-1 flex flex-col bg-[#faf9f6] px-4 sm:px-6 md:px-12 lg:px-16 h-screen overflow-y-auto">
-        {/* Content - start from top on mobile, center on desktop */}
-        <div className="flex-1 flex items-start lg:items-center justify-center pt-4 sm:pt-6 lg:pt-0 pb-4 sm:pb-6">
-          <div className="max-w-md w-full">
-            {/* Header - aligned with form content */}
-            <div className="flex justify-between items-center mb-6 sm:mb-10">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <img 
-                  src={logo} 
-                  alt="Studyhub logo" 
-                  className="h-8 sm:h-10 w-auto" 
-                />
-                <span className="text-lg sm:text-xl font-bold text-purple-brand">StudyHub</span>
+      {/* Background blobs for visual depth */}
+      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-[#4B2E83]/10 blur-[120px] pointer-events-none z-10" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-[#4B2E83]/10 blur-[120px] pointer-events-none z-10" />
+
+      {/* Two-column relative overlay */}
+      <div className="flex flex-col lg:flex-row w-full h-screen z-20 relative overflow-hidden">
+        
+        {/* Left Column: Teaser details (visible on desktop) */}
+        <div className="hidden lg:flex flex-1 flex-col justify-between p-12 text-white select-none">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md">
+              <img src={logo} alt="Studyhub logo" className="h-6 w-auto" />
+            </div>
+            <span className="text-xl font-bold tracking-wider uppercase text-white">StudyHub</span>
+          </div>
+
+          <div className="max-w-lg mb-10 space-y-6 animate-fade-in-up">
+            <span className="inline-block px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-wider">
+              ✨ Academic Workspace
+            </span>
+            <h2 className="text-4xl font-extrabold font-heading leading-tight">
+              Elevate Your Learning Journey
+            </h2>
+            <p className="text-white/80 text-base leading-relaxed">
+              Unlock access to shared academic resources, calculate your CGPA, take interactive mock quizzes, and collaborate with your peers.
+            </p>
+
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+                <span className="text-sm font-medium text-white/90">Library &amp; Notes</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <span className="text-sm font-medium text-white/90">CGPA Tools</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                </div>
+                <span className="text-sm font-medium text-white/90">Interactive Quizzes</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                  </svg>
+                </div>
+                <span className="text-sm font-medium text-white/90">Forums &amp; Chats</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-xs text-white/50">
+            © 2026 StudyHub. All rights reserved.
+          </div>
+        </div>
+
+        {/* Right Column: Form Container (visible on all screens, centered) */}
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-5 md:p-6 lg:p-12 h-screen overflow-hidden">
+          <div className="max-w-[500px] w-full h-auto lg:h-full bg-white/95 backdrop-blur-md border border-white/30 shadow-2xl shadow-black/25 rounded-2xl px-5 pb-5 pt-8 sm:px-6 sm:pb-6 sm:pt-10 flex flex-col justify-between animate-fade-in-up">
+            {/* Header */}
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h1 className="text-3xl font-black font-heading text-gray-900 tracking-tight leading-none mb-4">
+                  Welcome Back
+                </h1>
+                <p className="text-sm text-gray-500 mt-1.5 font-medium">
+                  Sign in to your StudyHub account to continue.
+                </p>
               </div>
               <Link 
                 to="/signup" 
-                className="text-sm sm:text-base text-black font-normal hover:opacity-70 transition-opacity"
+                className="text-sm font-bold text-[#4B2E83] hover:opacity-80 transition-opacity shrink-0 ml-4 mt-1"
               >
                 Create Account
               </Link>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-6 sm:mb-10 leading-tight">
-              Sign in
-            </h1>
+            {/* Form Content */}
+            <div className="flex-1 flex flex-col">
 
-            <form className="flex flex-col gap-4 sm:gap-6" onSubmit={handleSubmit}>
-              {/* Email */}
-              <div className="flex flex-col gap-2">
-                <label htmlFor="email" className="text-sm font-medium text-black leading-normal">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2.5 sm:py-3 border border-black rounded bg-white text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors leading-normal"
-                  placeholder="Enter your email"
-                />
-              </div>
+              <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+                {/* Email */}
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="email" className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </span>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all"
+                      placeholder="name@university.edu"
+                    />
+                  </div>
+                </div>
 
-              {/* Password */}
-              <div className="flex flex-col gap-2">
-                <label htmlFor="password" className="text-sm font-medium text-black leading-normal">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2.5 sm:py-3 pr-12 border border-black rounded bg-white text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors leading-normal"
-                    placeholder="Enter your password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-black transition-colors focus:outline-none"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                {/* Password */}
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="password" className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </span>
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="w-full pl-10 pr-11 py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all"
+                      placeholder="Enter password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Remember Me & Forgot Password */}
+                <div className="flex justify-between items-center mt-2">
+                  <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none group">
+                    <input
+                      type="checkbox"
+                      name="rememberMe"
+                      checked={formData.rememberMe}
+                      onChange={handleChange}
+                      className="w-4 h-4 rounded border-gray-300 text-[#4B2E83] focus:ring-[#4B2E83] cursor-pointer accent-[#4B2E83]"
+                    />
+                    <span className="text-xs font-semibold text-gray-600 group-hover:text-gray-900 transition-colors">Remember Me</span>
+                  </label>
+                  <Link 
+                    to="/forgot-password" 
+                    className="text-xs font-bold text-[#4B2E83] hover:opacity-85 transition-opacity"
                   >
-                    {showPassword ? (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                      </svg>
+                    Forgot Password?
+                  </Link>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col gap-3 mt-2">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 bg-gradient-to-r from-[#4B2E83] to-[#5e3da1] text-white rounded-xl font-bold shadow-md shadow-[#4B2E83]/20 hover:shadow-lg hover:shadow-[#4B2E83]/30 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 flex justify-center items-center gap-2"
+                  >
+                    {loading ? (
+                      <>
+                        <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        <span>Logging in...</span>
+                      </>
                     ) : (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
+                      <span>Log In</span>
                     )}
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={handleGuestLogin}
+                    disabled={loading}
+                    className="w-full py-3.5 bg-white border border-[#4B2E83]/20 text-[#4B2E83] rounded-xl font-bold hover:bg-[#4B2E83]/5 hover:border-[#4B2E83]/30 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 flex justify-center items-center gap-2 shadow-sm"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span>Continue as Guest</span>
+                  </button>
                 </div>
-              </div>
+              </form>
+            </div>
 
-              {/* Remember Me and Forgot Password */}
-              <div className="flex justify-between items-center -mt-2">
-                <label className="flex items-center gap-2 text-sm text-black cursor-pointer leading-normal">
-                  <input
-                    type="checkbox"
-                    name="rememberMe"
-                    checked={formData.rememberMe}
-                    onChange={handleChange}
-                    className="w-4 h-4 sm:w-4.5 sm:h-4.5 cursor-pointer"
-                  />
-                  <span>Remember Me</span>
-                </label>
-                <Link 
-                  to="/forgot-password" 
-                  className="text-xs sm:text-sm text-black hover:opacity-70 transition-opacity leading-normal"
-                >
-                  Forgot Password?
-                </Link>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 sm:py-3.5 btn-purple text-white rounded border-none text-base font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2 leading-normal"
-              >
-                {loading ? 'Logging in...' : 'Log in'}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleGuestLogin}
-                className="w-full py-3 sm:py-3.5 bg-white border border-black text-black rounded text-base font-medium cursor-pointer hover:bg-gray-50 transition-colors mt-2 leading-normal"
-              >
-                Continue as Guest
-              </button>
-
-              {/* Terms */}
-              <p className="text-xs text-gray-600 text-center mt-4 leading-relaxed">
-                Terms of Service and Privacy Policy
-              </p>
-            </form>
+            {/* Terms */}
+            <p className="text-xs text-gray-400 text-center mt-4 pt-4 border-t border-gray-100/80 leading-relaxed font-medium">
+              By signing in, you agree to our <a href="#" className="underline hover:text-gray-600">Terms of Service</a> and <a href="#" className="underline hover:text-gray-600">Privacy Policy</a>.
+            </p>
           </div>
         </div>
+
       </div>
     </div>
   )
