@@ -1,6 +1,6 @@
 import express from 'express'
 import { body } from 'express-validator'
-import { register, login, getMe } from '../controllers/authController.js'
+import { register, login, getMe, guestLogin } from '../controllers/authController.js'
 import { forgotPassword, verifyOTP, resetPassword } from '../controllers/passwordController.js'
 import { protect } from '../middleware/auth.js'
 
@@ -39,6 +39,7 @@ const resetPasswordValidation = [
 // Auth routes
 router.post('/register', registerValidation, register)
 router.post('/login', loginValidation, login)
+router.post('/guest-login', guestLogin)
 router.get('/me', protect, getMe)
 
 // Password reset routes

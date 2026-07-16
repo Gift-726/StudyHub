@@ -9,6 +9,7 @@ import {
   getCourseDetailsAdmin,
   deleteTopic,
   createCourse,
+  updateAcademicSeason,
   upload 
 } from '../controllers/adminController.js'
 
@@ -25,6 +26,7 @@ router.post('/import-playlist', importPlaylist)
 router.post('/import-video', importSingleVideo)
 router.post('/upload-material', upload.single('file'), uploadMaterial)
 router.delete('/topics/:topicId', deleteTopic)
+router.put('/academic-season', updateAcademicSeason)
 
 export default router
 

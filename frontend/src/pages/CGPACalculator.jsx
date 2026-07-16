@@ -46,7 +46,17 @@ const CGPACalculator = () => {
     const key = user?.email ? `studyhub_cgpa_tracker_${user.email}` : 'studyhub_cgpa_tracker_guest'
     const saved = localStorage.getItem(key)
     if (saved) {
-      setTrackerSemesters(JSON.parse(saved))
+      try {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed)) {
+          setTrackerSemesters(parsed)
+        } else {
+          setTrackerSemesters([])
+        }
+      } catch (err) {
+        console.error('Error parsing studyhub_cgpa_tracker data:', err)
+        setTrackerSemesters([])
+      }
     } else {
       setTrackerSemesters([])
     }
@@ -99,16 +109,36 @@ const CGPACalculator = () => {
   const handleCalculateGPA = () => {
     let totalPoints = 0
     let totalCredits = 0
+    const invalidCourses = []
 
-    calcCourses.forEach(course => {
-      const credit = parseFloat(course.credit) || 0
-      const points = gradePoints[course.grade.toUpperCase()] !== undefined ? gradePoints[course.grade.toUpperCase()] : -1
-      
-      if (credit > 0 && points >= 0) {
-        totalPoints += credit * points
-        totalCredits += credit
+    calcCourses.forEach((course, idx) => {
+      const name = (course.name || '').trim()
+      const creditStr = (course.credit || '').toString().trim()
+      const grade = (course.grade || '').trim()
+
+      const hasName = name !== ''
+      const hasCredit = creditStr !== '' && !isNaN(parseFloat(creditStr))
+      const hasGrade = grade !== ''
+
+      // A course is populated if at least one field is filled
+      if (hasName || hasCredit || hasGrade) {
+        const credit = parseFloat(creditStr) || 0
+        const points = gradePoints[grade.toUpperCase()]
+
+        if (credit <= 0 || isNaN(credit) || points === undefined) {
+          const courseDisplayName = name || `Course #${idx + 1}`
+          invalidCourses.push(courseDisplayName)
+        } else {
+          totalPoints += credit * points
+          totalCredits += credit
+        }
       }
     })
+
+    if (invalidCourses.length > 0) {
+      toast.error(`The following course rows are incomplete or invalid: ${invalidCourses.join(', ')}. Please select a valid grade and credit units > 0.`)
+      return
+    }
 
     if (totalCredits > 0) {
       const gpa = (totalPoints / totalCredits).toFixed(2)

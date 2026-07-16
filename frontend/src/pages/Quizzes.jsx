@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Layout from '../components/Layout'
 import { useAuth } from '../context/AuthContext'
 import GuestRestrictionModal from '../components/GuestRestrictionModal'
@@ -34,6 +34,32 @@ const Quizzes = () => {
   // 4. AI Ask Panel State
   const [isAiOpen, setIsAiOpen] = useState(false)
   const [aiInitialQuery, setAiInitialQuery] = useState('')
+
+  const answersRef = useRef(answers)
+  const questionsRef = useRef(questions)
+  const startTimeRef = useRef(startTime)
+  const selectedCourseRef = useRef(selectedCourse)
+  const userRef = useRef(user)
+
+  useEffect(() => {
+    answersRef.current = answers
+  }, [answers])
+
+  useEffect(() => {
+    questionsRef.current = questions
+  }, [questions])
+
+  useEffect(() => {
+    startTimeRef.current = startTime
+  }, [startTime])
+
+  useEffect(() => {
+    selectedCourseRef.current = selectedCourse
+  }, [selectedCourse])
+
+  useEffect(() => {
+    userRef.current = user
+  }, [user])
 
   // Load history from localStorage
   useEffect(() => {
@@ -149,9 +175,15 @@ const Quizzes = () => {
     setExamActive(false)
     setShowSubmitConfirm(false)
 
+    const currentStartTime = startTimeRef.current
+    const currentQuestions = questionsRef.current
+    const currentAnswers = answersRef.current
+    const currentSelectedCourse = selectedCourseRef.current
+    const currentUser = userRef.current
+
     // Calculate elapsed time
     const end = Date.now()
-    const elapsedSeconds = Math.floor((end - startTime) / 1000)
+    const elapsedSeconds = Math.floor((end - currentStartTime) / 1000)
     const elapsedMins = Math.floor(elapsedSeconds / 60)
     const remainingSecs = elapsedSeconds % 60
     const timeSpent = `${elapsedMins}m ${remainingSecs}s`
@@ -159,21 +191,21 @@ const Quizzes = () => {
 
     // Grade exam
     let correctCount = 0
-    questions.forEach(q => {
-      if (answers[q.id] === q.correctAnswer) {
+    currentQuestions.forEach(q => {
+      if (currentAnswers[q.id] === q.correctAnswer) {
         correctCount++
       }
     })
 
-    const pct = Math.round((correctCount / questions.length) * 100)
+    const pct = Math.round((correctCount / currentQuestions.length) * 100)
     setScore(correctCount)
     setPercentage(pct)
 
     // Save to history
     saveCbtAttempt({
       id: Date.now(),
-      course: selectedCourse === 'tech-news' ? `Tech Insights (${user?.department || 'Tech'})` : selectedCourse,
-      score: `${correctCount}/${questions.length}`,
+      course: currentSelectedCourse === 'tech-news' ? `Tech Insights (${currentUser?.department || 'Tech'})` : currentSelectedCourse,
+      score: `${correctCount}/${currentQuestions.length}`,
       percentage: pct,
       date: new Date().toLocaleDateString(),
       timeSpent
@@ -193,9 +225,9 @@ const Quizzes = () => {
     q.options.forEach((opt, idx) => {
       contextStr += `${String.fromCharCode(65 + idx)}. ${opt}\n`
     })
-    contextStr += `Correct Answer: ${String.fromCharCode(66 + q.correctAnswer)} (${q.options[q.correctAnswer]})\n`
+    contextStr += `Correct Answer: ${String.fromCharCode(65 + q.correctAnswer)} (${q.options[q.correctAnswer]})\n`
     if (selectedOptIdx !== undefined) {
-      contextStr += `My Selected Answer: ${String.fromCharCode(66 + selectedOptIdx)} (${q.options[selectedOptIdx]})\n`
+      contextStr += `My Selected Answer: ${String.fromCharCode(65 + selectedOptIdx)} (${q.options[selectedOptIdx]})\n`
     }
     contextStr += `Please explain why this answer is correct and break down the solution step-by-step.`
 

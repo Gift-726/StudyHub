@@ -14,9 +14,10 @@ const protect = async (req, res, next) => {
     }
 
     try {
-      if (token === 'guest-token') {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET)
+      if (decoded.isGuest) {
         req.user = {
-          _id: '60d5ec493ad5c426685718e9',
+          _id: decoded.id,
           email: 'guest@studyhub.com',
           fullName: 'Guest Student',
           faculty: 'Science & Tech',
@@ -26,7 +27,7 @@ const protect = async (req, res, next) => {
         }
         return next()
       }
-      const decoded = jwt.verify(token, process.env.JWT_SECRET)
+      
       req.user = await User.findById(decoded.id).select('-password')
       if (!req.user) {
         return res.status(401).json({ message: 'User not found' })

@@ -21,6 +21,7 @@ const Library = () => {
     description: ''
   })
   const [selectedFile, setSelectedFile] = useState(null)
+  const [fileError, setFileError] = useState('')
   const [isUploading, setIsUploading] = useState(false)
 
   // Seed data + User Uploads State
@@ -87,16 +88,33 @@ const Library = () => {
   // Load from localStorage & merge with defaults
   useEffect(() => {
     const saved = localStorage.getItem('studyhub_user_library_records')
+    let parsedOrEmpty = []
     if (saved) {
-      setMaterials([...defaultMaterials, ...JSON.parse(saved)])
-    } else {
-      setMaterials(defaultMaterials)
+      try {
+        parsedOrEmpty = JSON.parse(saved)
+        if (!Array.isArray(parsedOrEmpty)) {
+          parsedOrEmpty = []
+        }
+      } catch (err) {
+        console.error('Error parsing studyhub_user_library_records:', err)
+        parsedOrEmpty = []
+      }
     }
+    setMaterials([...defaultMaterials, ...parsedOrEmpty])
   }, [])
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0])
+      const file = e.target.files[0]
+      const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
+      if (!isPdf) {
+        setFileError('Only PDF files are allowed')
+        setSelectedFile(null)
+        e.target.value = ''
+      } else {
+        setFileError('')
+        setSelectedFile(file)
+      }
     }
   }
 
@@ -110,6 +128,13 @@ const Library = () => {
 
     if (!formData.courseCode.trim() || !formData.title.trim() || !formData.yearRange.trim() || !selectedFile) {
       toast.error('Please fill in all required fields and select a PDF file')
+      return
+    }
+
+    const isPdf = selectedFile.type === 'application/pdf' || selectedFile.name.toLowerCase().endsWith('.pdf')
+    if (!isPdf) {
+      setFileError('Only PDF files are allowed')
+      toast.error('Only PDF files are allowed')
       return
     }
 
@@ -129,7 +154,19 @@ const Library = () => {
         fileSize: (selectedFile.size / (1024 * 1024)).toFixed(1) + ' MB'
       }
 
-      const savedRecords = JSON.parse(localStorage.getItem('studyhub_user_library_records') || '[]')
+      let savedRecords = []
+      try {
+        const saved = localStorage.getItem('studyhub_user_library_records')
+        if (saved) {
+          savedRecords = JSON.parse(saved)
+          if (!Array.isArray(savedRecords)) {
+            savedRecords = []
+          }
+        }
+      } catch (err) {
+        console.error('Error parsing studyhub_user_library_records during submit:', err)
+        savedRecords = []
+      }
       const updatedRecords = [...savedRecords, newRecord]
       localStorage.setItem('studyhub_user_library_records', JSON.stringify(updatedRecords))
 
@@ -271,6 +308,7 @@ const Library = () => {
                   onChange={handleFileChange}
                   className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
                 />
+                {fileError && <p className="text-red-500 text-xs mt-1">{fileError}</p>}
               </div>
 
               <button

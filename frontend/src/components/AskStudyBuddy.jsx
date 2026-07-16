@@ -52,6 +52,7 @@ const AskStudyBuddy = ({ isOpen, onClose, initialQuery = '' }) => {
       
       if (response.data?.reply) {
         setMessages(prev => [...prev, { sender: 'ai', text: response.data.reply }])
+        setLoading(false)
       } else {
         throw new Error('No reply in server response')
       }
@@ -64,11 +65,6 @@ const AskStudyBuddy = ({ isOpen, onClose, initialQuery = '' }) => {
         setMessages(prev => [...prev, { sender: 'ai', text: aiReply }])
         setLoading(false)
       }, 800)
-      return
-    } finally {
-      if (!queryText) {
-        setLoading(false)
-      }
     }
   }
 

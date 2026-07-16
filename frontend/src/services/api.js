@@ -44,11 +44,13 @@ export const authAPI = {
   register: (userData) => api.post('/auth/register', userData),
   login: (credentials) => api.post('/auth/login', credentials),
   getMe: () => api.get('/auth/me'),
+  guestLogin: () => api.post('/auth/guest-login'),
 }
 
 // Dashboard API
 export const dashboardAPI = {
   getDashboard: () => api.get('/dashboard'),
+  getAcademicSeason: () => api.get('/dashboard/academic-season'),
 }
 
 // Courses API
@@ -83,6 +85,7 @@ export const adminAPI = {
   deleteTopic: (topicId) => api.delete(`/admin/topics/${topicId}`),
   createCourse: (data) => api.post('/admin/courses', data),
   generateCourseAccessToken: (courseId) => api.post('/course-admin/generate-token', { courseId }),
+  updateAcademicSeason: (season) => api.put('/admin/academic-season', { season }),
 }
 
 // Course Admin API

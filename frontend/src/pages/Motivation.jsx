@@ -102,22 +102,22 @@ const Motivation = () => {
 
         {/* Tab Controls */}
         <div className="mb-6 border-b border-gray-200">
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-2 sm:gap-4">
             <button
               onClick={() => setActiveTab('morale')}
-              className={`px-4 py-2 font-medium border-b-2 text-sm transition-all ${activeTab === 'morale' ? 'border-purple-brand text-purple-brand font-semibold' : 'border-transparent text-gray-600 hover:text-gray-900'}`}
+              className={`px-4 py-2 font-medium border-b-2 text-sm transition-all whitespace-nowrap ${activeTab === 'morale' ? 'border-purple-brand text-purple-brand font-semibold' : 'border-transparent text-gray-600 hover:text-gray-900'}`}
             >
               Academic Morale
             </button>
             <button
               onClick={() => setActiveTab('spiritual')}
-              className={`px-4 py-2 font-medium border-b-2 text-sm transition-all ${activeTab === 'spiritual' ? 'border-purple-brand text-purple-brand font-semibold' : 'border-transparent text-gray-600 hover:text-gray-900'}`}
+              className={`px-4 py-2 font-medium border-b-2 text-sm transition-all whitespace-nowrap ${activeTab === 'spiritual' ? 'border-purple-brand text-purple-brand font-semibold' : 'border-transparent text-gray-600 hover:text-gray-900'}`}
             >
               Spiritual & Purpose
             </button>
             <button
               onClick={() => setActiveTab('insights')}
-              className={`px-4 py-2 font-medium border-b-2 text-sm transition-all ${activeTab === 'insights' ? 'border-purple-brand text-purple-brand font-semibold' : 'border-transparent text-gray-600 hover:text-gray-900'}`}
+              className={`px-4 py-2 font-medium border-b-2 text-sm transition-all whitespace-nowrap ${activeTab === 'insights' ? 'border-purple-brand text-purple-brand font-semibold' : 'border-transparent text-gray-600 hover:text-gray-900'}`}
             >
               Global Tech Insights
             </button>

@@ -15,18 +15,28 @@ export const getMyCourses = async (req, res) => {
       .sort({ enrolledAt: -1 })
 
     // Format the response
-    const courses = enrollments.map(enrollment => ({
-      _id: enrollment.courseId._id,
-      title: enrollment.courseId.title,
-      description: enrollment.courseId.description,
-      topics: enrollment.courseId.topics || 12, // Default or from course
-      progress: enrollment.progress || 0,
-      units: enrollment.courseId.units || 3, // Default or from course
-      lastActivity: enrollment.updatedAt || enrollment.enrolledAt,
-      image: enrollment.courseId.image || null
+    const courses = await Promise.all(enrollments.map(async (enrollment) => {
+      if (!enrollment.courseId) return null;
+      let image = enrollment.courseId.image;
+      if (!image) {
+        const firstTopic = await Topic.findOne({ courseId: enrollment.courseId._id, 'videos.0': { $exists: true } }).sort({ order: 1 });
+        if (firstTopic && firstTopic.videos && firstTopic.videos.length > 0) {
+          image = firstTopic.videos[0].thumbnail || `https://img.youtube.com/vi/${firstTopic.videos[0].youtubeId}/hqdefault.jpg`;
+        }
+      }
+      return {
+        _id: enrollment.courseId._id,
+        title: enrollment.courseId.title,
+        description: enrollment.courseId.description,
+        topics: enrollment.courseId.topics || 12, // Default or from course
+        progress: enrollment.progress || 0,
+        units: enrollment.courseId.units || 3, // Default or from course
+        lastActivity: enrollment.updatedAt || enrollment.enrolledAt,
+        image: image || null
+      }
     }))
 
-    res.json(courses)
+    res.json(courses.filter(c => c !== null))
   } catch (error) {
     console.error('Get my courses error:', error)
     res.status(500).json({ message: 'Server error occurred' })
@@ -41,7 +51,19 @@ export const getAllCourses = async (req, res) => {
     const courses = await Course.find()
       .select('-adminAccessToken') // Don't expose access tokens
       .sort({ createdAt: -1 })
-    res.json(courses)
+
+    const coursesWithThumbnails = await Promise.all(courses.map(async (course) => {
+      const courseObj = course.toObject()
+      if (!courseObj.image) {
+        const firstTopic = await Topic.findOne({ courseId: courseObj._id, 'videos.0': { $exists: true } }).sort({ order: 1 });
+        if (firstTopic && firstTopic.videos && firstTopic.videos.length > 0) {
+          courseObj.image = firstTopic.videos[0].thumbnail || `https://img.youtube.com/vi/${firstTopic.videos[0].youtubeId}/hqdefault.jpg`;
+        }
+      }
+      return courseObj
+    }))
+
+    res.json(coursesWithThumbnails)
   } catch (error) {
     console.error('Get all courses error:', error)
     res.status(500).json({ message: 'Server error occurred' })
@@ -117,8 +139,16 @@ export const getCourseDetails = async (req, res) => {
       }
     })
     
+    const courseObj = course.toObject()
+    if (!courseObj.image) {
+      const firstTopic = await Topic.findOne({ courseId, 'videos.0': { $exists: true } }).sort({ order: 1 });
+      if (firstTopic && firstTopic.videos && firstTopic.videos.length > 0) {
+        courseObj.image = firstTopic.videos[0].thumbnail || `https://img.youtube.com/vi/${firstTopic.videos[0].youtubeId}/hqdefault.jpg`;
+      }
+    }
+
     res.json({ 
-      course, 
+      course: courseObj, 
       topics,
       statistics: {
         totalVideos,

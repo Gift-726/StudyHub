@@ -73,7 +73,7 @@ const HigherLevelPrep = ({ courseTitle = 'Advanced Course', courseLevel = '300' 
       timer = setInterval(() => {
         setTimerSeconds(prev => prev - 1)
       }, 1000)
-    } else if (timerSeconds === 0) {
+    } else if (timerActive && timerSeconds === 0) {
       setTimerActive(false)
       toast.error("Practice time has expired! Self-assess your answers now.")
       setShowChecklist(true)
@@ -92,6 +92,8 @@ const HigherLevelPrep = ({ courseTitle = 'Advanced Course', courseLevel = '300' 
   }
 
   const handleCardRate = (type) => {
+    if (flashcards.length === 0) return
+
     if (type === 'mastered') {
       setCardStats(prev => ({ ...prev, mastered: prev.mastered + 1 }))
       toast.success("Card marked as mastered!")
@@ -101,8 +103,8 @@ const HigherLevelPrep = ({ courseTitle = 'Advanced Course', courseLevel = '300' 
     }
 
     setIsFlipped(false)
-    // Advance card
-    setCurrentCardIdx((currentCardIdx + 1) % flashcards.length)
+    // Advance card using functional state updater
+    setCurrentCardIdx(prev => (flashcards.length > 0 ? (prev + 1) % flashcards.length : 0))
   }
 
   const handleToggleChecklistPoint = (index) => {
@@ -177,7 +179,7 @@ const HigherLevelPrep = ({ courseTitle = 'Advanced Course', courseLevel = '300' 
                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Lecturer Grading Scheme (Marks Allocation)</span>
                     {item.rubric.map((rubricItem, idx) => (
                       <div key={idx} className="flex gap-2 text-xs text-gray-600 items-start">
-                        <span className="bg-green-150 border border-green-300 text-green-800 px-2 py-0.5 rounded font-black text-[10px] flex-shrink-0">
+                        <span className="bg-green-100 border border-green-300 text-green-800 px-2 py-0.5 rounded font-black text-[10px] flex-shrink-0">
                           +{rubricItem.points} M
                         </span>
                         <p>{rubricItem.label}</p>

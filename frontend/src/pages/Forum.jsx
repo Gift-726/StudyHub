@@ -31,7 +31,7 @@ const Forum = () => {
   }
 
   const getPlatformIcon = (platform) => {
-    return ''
+    return null
   }
 
   const getPlatformColor = (platform) => {
@@ -114,7 +114,9 @@ const Forum = () => {
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
-                                <span className="text-xl">{getPlatformIcon(link.platform)}</span>
+                                {getPlatformIcon(link.platform) && (
+                                  <span className="text-xl">{getPlatformIcon(link.platform)}</span>
+                                )}
                                 <h4 className="font-semibold text-gray-900">{link.title}</h4>
                                 <span
                                   className={`px-2 py-1 text-xs rounded border ${getPlatformColor(link.platform)}`}
