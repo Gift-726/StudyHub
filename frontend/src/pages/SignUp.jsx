@@ -25,11 +25,10 @@ const SignUp = () => {
     const { name, value } = e.target
     
     if (name === 'faculty') {
-      // When faculty changes, update available departments and reset department
       setFormData({
         ...formData,
         faculty: value,
-        department: '', // Reset department when faculty changes
+        department: '', 
       })
       setAvailableDepartments(faculties[value] || [])
     } else {
@@ -60,7 +59,7 @@ const SignUp = () => {
   }
 
   return (
-    <div className="flex w-full h-screen overflow-hidden relative">
+    <div className="flex w-full min-h-screen lg:h-screen lg:overflow-hidden relative bg-[#faf9f6]">
       {/* Full-width background image with overlay */}
       <div className="absolute inset-0 select-none z-0">
         <img 
@@ -76,7 +75,7 @@ const SignUp = () => {
       <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-[#4B2E83]/10 blur-[120px] pointer-events-none z-10" />
 
       {/* Two-column relative overlay */}
-      <div className="flex flex-col lg:flex-row w-full h-screen z-20 relative overflow-hidden">
+      <div className="flex flex-col lg:flex-row w-full min-h-screen lg:h-screen z-20 relative lg:overflow-hidden">
         
         {/* Left Column: Teaser details (visible on desktop) */}
         <div className="hidden lg:flex flex-1 flex-col justify-between p-12 text-white select-none">
@@ -105,7 +104,7 @@ const SignUp = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </svg>
                 </div>
-                <span className="text-sm font-medium text-white/90">Library & Notes</span>
+                <span className="text-sm font-medium text-white/90">Library &amp; Notes</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
@@ -129,7 +128,7 @@ const SignUp = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                   </svg>
                 </div>
-                <span className="text-sm font-medium text-white/90">Forums & Chats</span>
+                <span className="text-sm font-medium text-white/90">Forums &amp; Chats</span>
               </div>
             </div>
           </div>
@@ -139,48 +138,41 @@ const SignUp = () => {
           </div>
         </div>
 
-        {/* Right Column: Form Container (visible on all screens, centered) */}
-        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-12 lg:p-12 h-screen overflow-hidden">
-          <div className="max-w-2xl w-full h-auto lg:h-full bg-white/95 backdrop-blur-md border border-white/30 shadow-2xl shadow-black/25 rounded-2xl p-6 sm:p-8 flex flex-col justify-between overflow-y-auto animate-fade-in-up">
+        {/* Right Column: Form Container */}
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 min-h-screen lg:h-screen overflow-y-auto lg:overflow-hidden">
+          <div className="max-w-[580px] w-full bg-white/95 backdrop-blur-md border border-white/30 shadow-2xl shadow-black/25 rounded-2xl px-5 py-6 sm:p-8 flex flex-col justify-between my-6 lg:my-0 lg:max-h-[92vh] lg:overflow-y-auto animate-fade-in-up scrollbar-thin">
+            
             {/* Header */}
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 bg-[#4B2E83] rounded-full flex items-center justify-center shadow-md">
-                  <img 
-                    src={logo} 
-                    alt="Studyhub logo" 
-                    className="h-5 w-auto filter brightness-0 invert" 
-                  />
-                </div>
-                <span className="text-xl font-extrabold tracking-tight text-[#4B2E83]">StudyHub</span>
+            <div className="flex justify-between items-start mb-5 sm:mb-6">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-black font-heading text-gray-900 tracking-tight leading-none mb-2.5">
+                  Create an Account
+                </h1>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1 font-semibold leading-relaxed">
+                  Join StudyHub to start managing your academic goals.
+                </p>
               </div>
               <Link 
                 to="/login" 
-                className="text-sm font-bold text-[#4B2E83] hover:opacity-80 transition-opacity"
+                className="text-sm font-extrabold text-[#4B2E83] hover:opacity-80 transition-opacity shrink-0 ml-4 mt-0.5"
               >
                 Log In
               </Link>
             </div>
 
             {/* Form Content */}
-            <div className="flex-1 flex flex-col justify-center my-auto py-4">
-              <h1 className="text-3xl font-black font-heading text-gray-900 tracking-tight mb-2 leading-none">
-                Create an Account
-              </h1>
-              <p className="text-sm text-gray-500 mb-6 font-medium">
-                Join StudyHub to start managing your academic goals.
-              </p>
-
-              <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="flex-1 flex flex-col justify-center">
+              <form className="flex flex-col gap-3.5 sm:gap-4.5" onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+                  
                   {/* Full Name */}
-                  <div className="md:col-span-2 flex flex-col gap-1.5">
+                  <div className="sm:col-span-2 flex flex-col gap-1.5">
                     <label htmlFor="fullName" className="text-xs font-bold text-gray-700 uppercase tracking-wider">
                       Full Name
                     </label>
                     <div className="relative">
                       <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                       </span>
@@ -191,20 +183,20 @@ const SignUp = () => {
                         required
                         value={formData.fullName}
                         onChange={handleChange}
-                        className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all"
                         placeholder="John Doe"
                       />
                     </div>
                   </div>
 
                   {/* Email */}
-                  <div className="md:col-span-2 flex flex-col gap-1.5">
+                  <div className="sm:col-span-2 flex flex-col gap-1.5">
                     <label htmlFor="email" className="text-xs font-bold text-gray-700 uppercase tracking-wider">
                       Email Address
                     </label>
                     <div className="relative">
                       <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                       </span>
@@ -215,20 +207,20 @@ const SignUp = () => {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all"
                         placeholder="name@university.edu"
                       />
                     </div>
                   </div>
 
                   {/* Password */}
-                  <div className="md:col-span-2 flex flex-col gap-1.5">
+                  <div className="sm:col-span-2 flex flex-col gap-1.5">
                     <label htmlFor="password" className="text-xs font-bold text-gray-700 uppercase tracking-wider">
                       Password
                     </label>
                     <div className="relative">
                       <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                       </span>
@@ -240,7 +232,7 @@ const SignUp = () => {
                         minLength={6}
                         value={formData.password}
                         onChange={handleChange}
-                        className="w-full pl-11 pr-12 py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all"
+                        className="w-full pl-10 pr-11 py-2.5 sm:py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all"
                         placeholder="At least 6 characters"
                       />
                       <button
@@ -250,11 +242,11 @@ const SignUp = () => {
                         aria-label={showPassword ? 'Hide password' : 'Show password'}
                       >
                         {showPassword ? (
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                           </svg>
                         ) : (
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                           </svg>
@@ -270,7 +262,7 @@ const SignUp = () => {
                     </label>
                     <div className="relative">
                       <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14v7" />
@@ -282,7 +274,7 @@ const SignUp = () => {
                         required
                         value={formData.faculty}
                         onChange={handleChange}
-                        className="w-full pl-11 pr-10 py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-base text-gray-900 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all appearance-none cursor-pointer"
+                        className="w-full pl-10 pr-9 py-2.5 sm:py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all appearance-none cursor-pointer"
                       >
                         <option value="">Select Faculty</option>
                         {Object.keys(faculties).map((faculty) => (
@@ -291,8 +283,8 @@ const SignUp = () => {
                           </option>
                         ))}
                       </select>
-                      <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
@@ -306,7 +298,7 @@ const SignUp = () => {
                     </label>
                     <div className="relative">
                       <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
                       </span>
@@ -317,7 +309,7 @@ const SignUp = () => {
                         value={formData.department}
                         onChange={handleChange}
                         disabled={!formData.faculty || availableDepartments.length === 0}
-                        className="w-full pl-11 pr-10 py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-base text-gray-900 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all appearance-none cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="w-full pl-10 pr-9 py-2.5 sm:py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all appearance-none cursor-pointer disabled:bg-gray-100/70 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         <option value="">
                           {formData.faculty ? 'Select Department' : 'Select Faculty first'}
@@ -328,8 +320,8 @@ const SignUp = () => {
                           </option>
                         ))}
                       </select>
-                      <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
@@ -337,13 +329,13 @@ const SignUp = () => {
                   </div>
 
                   {/* Level */}
-                  <div className="md:col-span-2 flex flex-col gap-1.5">
+                  <div className="sm:col-span-2 flex flex-col gap-1.5">
                     <label htmlFor="level" className="text-xs font-bold text-gray-700 uppercase tracking-wider">
                       Academic Level
                     </label>
                     <div className="relative">
                       <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                         </svg>
                       </span>
@@ -353,7 +345,7 @@ const SignUp = () => {
                         required
                         value={formData.level}
                         onChange={handleChange}
-                        className="w-full pl-11 pr-10 py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-base text-gray-900 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all appearance-none cursor-pointer"
+                        className="w-full pl-10 pr-9 py-2.5 sm:py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all appearance-none cursor-pointer"
                       >
                         <option value="">Select Level</option>
                         {levels.map((level) => (
@@ -362,8 +354,8 @@ const SignUp = () => {
                           </option>
                         ))}
                       </select>
-                      <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
@@ -375,7 +367,7 @@ const SignUp = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 bg-gradient-to-r from-[#4B2E83] to-[#5e3da1] text-white rounded-xl font-bold shadow-md shadow-[#4B2E83]/20 hover:shadow-lg hover:shadow-[#4B2E83]/30 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 flex justify-center items-center gap-2 mt-2"
+                  className="w-full py-3 bg-gradient-to-r from-[#4B2E83] to-[#5e3da1] text-white rounded-xl font-bold shadow-md shadow-[#4B2E83]/20 hover:shadow-lg hover:shadow-[#4B2E83]/30 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 flex justify-center items-center gap-2 mt-2.5"
                 >
                   {loading ? (
                     <>
@@ -393,7 +385,7 @@ const SignUp = () => {
             </div>
 
             {/* Terms */}
-            <p className="text-xs text-gray-400 text-center mt-6 pt-4 border-t border-gray-100/80 leading-relaxed font-medium">
+            <p className="text-[11px] text-gray-400 text-center mt-5 pt-3.5 border-t border-gray-100/80 leading-relaxed font-semibold">
               By creating an account, you agree to our <a href="#" className="underline hover:text-gray-600">Terms of Service</a> and <a href="#" className="underline hover:text-gray-600">Privacy Policy</a>.
             </p>
           </div>
