@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import { validationResult } from 'express-validator'
 import User from '../models/User.js'
 import mongoose from 'mongoose'
+import { verifyGoogleToken } from '../services/googleAuthService.js'
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -109,6 +110,81 @@ const login = async (req, res) => {
   }
 }
 
+// @desc    Google Sign-in/Sign-up authentication
+// @route   POST /api/auth/google
+// @access  Public
+const googleLogin = async (req, res) => {
+  try {
+    const { token, faculty, department, level } = req.body
+
+    if (!token) {
+      return res.status(400).json({ message: 'Google credential token is required' })
+    }
+
+    // Verify token
+    const payload = await verifyGoogleToken(token)
+    const { email, name } = payload
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email not returned by Google' })
+    }
+
+    const normalizedEmail = email.toLowerCase().trim()
+
+    // Check if user already exists
+    let user = await User.findOne({ email: normalizedEmail })
+
+    if (user) {
+      // User exists, log them in directly
+      return res.json({
+        _id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+        faculty: user.faculty,
+        department: user.department,
+        level: user.level,
+        token: generateToken(user._id),
+      })
+    }
+
+    // User does not exist, check if we have the extra info to register them
+    if (faculty && department && level) {
+      // Generate a secure random password
+      const randomPassword = Math.random().toString(36).slice(-10) + 'Google1!'
+
+      user = await User.create({
+        email: normalizedEmail,
+        password: randomPassword,
+        fullName: name || 'Google User',
+        faculty,
+        department,
+        level,
+      })
+
+      return res.status(201).json({
+        _id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+        faculty: user.faculty,
+        department: user.department,
+        level: user.level,
+        token: generateToken(user._id),
+      })
+    }
+
+    // Otherwise, signal that we need registration fields to finish creating the account
+    return res.json({
+      needRegistrationInfo: true,
+      email: normalizedEmail,
+      fullName: name || '',
+    })
+
+  } catch (error) {
+    console.error('Google login controller error:', error)
+    res.status(500).json({ message: error.message || 'Server error occurred' })
+  }
+}
+
 // @desc    Get current user
 // @route   GET /api/auth/me
 // @access  Private
@@ -145,5 +221,4 @@ const guestLogin = async (req, res) => {
   }
 }
 
-export { register, login, getMe, guestLogin }
-
+export { register, login, googleLogin, getMe, guestLogin }

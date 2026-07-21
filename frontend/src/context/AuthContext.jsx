@@ -155,6 +155,44 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  const googleLogin = async (tokenData) => {
+    try {
+      const response = await authAPI.googleLogin(tokenData)
+      
+      // If backend needs registration info (faculty, department, level)
+      if (response.data.needRegistrationInfo) {
+        return {
+          success: true,
+          needRegistrationInfo: true,
+          email: response.data.email,
+          fullName: response.data.fullName,
+        }
+      }
+
+      // If user was successfully authenticated (either logged in or registered)
+      const { token: newToken, ...userData } = response.data
+      setToken(newToken)
+      
+      localStorage.setItem('token', newToken)
+      sessionStorage.removeItem('token')
+      sessionStorage.removeItem('isGuest')
+      localStorage.removeItem('isGuest')
+
+      setUser(userData)
+      const userId = userData._id || userData.id || 'anonymous'
+      const currentCount = parseInt(localStorage.getItem(`loginCount_${userId}`) || '0', 10)
+      localStorage.setItem(`loginCount_${userId}`, (currentCount + 1).toString())
+
+      return { success: true }
+    } catch (error) {
+      console.error('Google Auth login failed:', error)
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Google authentication failed',
+      }
+    }
+  }
+
   const logout = () => {
     setToken(null)
     setUser(null)
@@ -171,6 +209,7 @@ export const AuthProvider = ({ children }) => {
     token,
     loading,
     login,
+    googleLogin,
     register,
     loginAsGuest,
     logout,

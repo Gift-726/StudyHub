@@ -102,9 +102,14 @@ const CourseAdminRoute = ({ children }) => {
   return children
 }
 
+import { GoogleOAuthProvider } from '@react-oauth/google'
+
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '540932663529-bdj82e71mo8cer1mch01cu9cs52kck1o.apps.googleusercontent.com'
+
 function App() {
   return (
-    <AuthProvider>
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <AuthProvider>
       <Router>
         <div className="w-full min-h-screen">
           <Toaster position="top-right" />
@@ -223,6 +228,7 @@ function App() {
         </div>
       </Router>
     </AuthProvider>
+    </GoogleOAuthProvider>
   )
 }
 

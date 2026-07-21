@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 import logo from '../assets/logo.png'
 import authBg from '../assets/authBg.png'
+import { GoogleLogin } from '@react-oauth/google'
 import { faculties, levels } from '../utils/faculties'
 
 const SignUp = () => {
@@ -17,9 +18,20 @@ const SignUp = () => {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [availableDepartments, setAvailableDepartments] = useState([])
-  const { register } = useAuth()
+  const { register, googleLogin } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
+
+  // Google Login and Registration States
+  const [showGoogleRegisterModal, setShowGoogleRegisterModal] = useState(false)
+  const [tempGoogleToken, setTempGoogleToken] = useState('')
+  const [googleUserEmail, setGoogleUserEmail] = useState('')
+  const [googleRegData, setGoogleRegData] = useState({
+    faculty: '',
+    department: '',
+    level: '',
+  })
+  const [googleModalDepartments, setGoogleModalDepartments] = useState([])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -34,6 +46,23 @@ const SignUp = () => {
     } else {
       setFormData({
         ...formData,
+        [name]: value,
+      })
+    }
+  }
+
+  const handleGoogleRegChange = (e) => {
+    const { name, value } = e.target
+    if (name === 'faculty') {
+      setGoogleRegData({
+        ...googleRegData,
+        faculty: value,
+        department: '',
+      })
+      setGoogleModalDepartments(faculties[value] || [])
+    } else {
+      setGoogleRegData({
+        ...googleRegData,
         [name]: value,
       })
     }
@@ -56,6 +85,66 @@ const SignUp = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true)
+    try {
+      const token = credentialResponse.credential
+      const result = await googleLogin({ token })
+
+      if (result.success) {
+        if (result.needRegistrationInfo) {
+          // Open complete profile modal
+          setTempGoogleToken(token)
+          setGoogleUserEmail(result.email)
+          setShowGoogleRegisterModal(true)
+        } else {
+          toast.success('Logged in successfully with Google!')
+          navigate('/dashboard')
+        }
+      } else {
+        toast.error(result.message || 'Google authentication failed')
+      }
+    } catch (error) {
+      toast.error('An error occurred during Google sign-in.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleRegisterSubmit = async (e) => {
+    e.preventDefault()
+    if (!googleRegData.faculty || !googleRegData.department || !googleRegData.level) {
+      toast.error('Please select all registration fields')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const result = await googleLogin({
+        token: tempGoogleToken,
+        faculty: googleRegData.faculty,
+        department: googleRegData.department,
+        level: googleRegData.level,
+      })
+
+      if (result.success) {
+        toast.success('Profile completed and logged in successfully!')
+        setShowGoogleRegisterModal(false)
+        navigate('/dashboard')
+      } else {
+        toast.error(result.message || 'Google registration failed')
+      }
+    } catch (error) {
+      toast.error('An error occurred during profile setup.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleError = () => {
+    toast.error('Google Sign In was unsuccessful. Try again.')
   }
 
   return (
@@ -382,6 +471,26 @@ const SignUp = () => {
                   )}
                 </button>
               </form>
+
+              {/* Separator */}
+              <div className="flex items-center my-4">
+                <div className="flex-grow border-t border-gray-150" />
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 select-none">or authenticate with</span>
+                <div className="flex-grow border-t border-gray-150" />
+              </div>
+
+              {/* Google Sign-in Button */}
+              <div className="flex justify-center w-full shadow-sm hover:shadow-md transition-shadow rounded-xl overflow-hidden border border-gray-150 bg-white">
+                <GoogleLogin 
+                  onSuccess={handleGoogleSuccess} 
+                  onError={handleGoogleError} 
+                  useOneTap 
+                  theme="outline"
+                  size="large"
+                  width="100%"
+                  text="signup_with"
+                />
+              </div>
             </div>
 
             {/* Terms */}
@@ -391,6 +500,145 @@ const SignUp = () => {
           </div>
         </div>
       </div>
+
+      {/* Google Complete Profile Modal */}
+      {showGoogleRegisterModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowGoogleRegisterModal(false)} />
+          <div className="relative max-w-md w-full bg-white/95 backdrop-blur-md border border-white/30 shadow-2xl rounded-2xl px-6 py-6 sm:p-8 z-10 animate-fade-in-up max-h-[90vh] overflow-y-auto scrollbar-thin">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Complete Your Profile</h3>
+            <p className="text-xs text-gray-500 mb-5 leading-relaxed font-medium">
+              To complete your registration for <strong className="text-gray-800">{googleUserEmail}</strong>, please select your academic details below.
+            </p>
+            
+            <form onSubmit={handleGoogleRegisterSubmit} className="space-y-4">
+              {/* Faculty Select */}
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="modal-faculty" className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Faculty
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14v7" />
+                    </svg>
+                  </span>
+                  <select
+                    id="modal-faculty"
+                    name="faculty"
+                    required
+                    value={googleRegData.faculty}
+                    onChange={handleGoogleRegChange}
+                    className="w-full pl-10 pr-9 py-2.5 sm:py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="">Select Faculty</option>
+                    {Object.keys(faculties).map((faculty) => (
+                      <option key={faculty} value={faculty}>
+                        {faculty}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Department Select */}
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="modal-department" className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Department
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </span>
+                  <select
+                    id="modal-department"
+                    name="department"
+                    required
+                    value={googleRegData.department}
+                    onChange={handleGoogleRegChange}
+                    disabled={!googleRegData.faculty || googleModalDepartments.length === 0}
+                    className="w-full pl-10 pr-9 py-2.5 sm:py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all appearance-none cursor-pointer disabled:bg-gray-100/70 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <option value="">
+                      {googleRegData.faculty ? 'Select Department' : 'Select Faculty first'}
+                    </option>
+                    {googleModalDepartments.map((dept) => (
+                      <option key={dept} value={dept}>
+                        {dept}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Level Select */}
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="modal-level" className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Academic Level
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    </svg>
+                  </span>
+                  <select
+                    id="modal-level"
+                    name="level"
+                    required
+                    value={googleRegData.level}
+                    onChange={handleGoogleRegChange}
+                    className="w-full pl-10 pr-9 py-2.5 sm:py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="">Select Level</option>
+                    {levels.map((level) => (
+                      <option key={level} value={level}>
+                        {level}L
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setShowGoogleRegisterModal(false)}
+                  className="flex-1 py-2.5 sm:py-3 border border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-colors text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 py-2.5 sm:py-3 bg-gradient-to-r from-[#4B2E83] to-[#5e3da1] text-white rounded-xl font-bold shadow-md shadow-[#4B2E83]/20 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 transition-all text-sm"
+                >
+                  Complete Setup
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
