@@ -110,5 +110,14 @@ export const aiAPI = {
   askStudyBuddy: (prompt) => api.post('/ai/ask', { prompt }),
 }
 
+// Library API
+export const libraryAPI = {
+  getMaterials: () => api.get('/library'),
+  uploadMaterial: (formData) => api.post('/library/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  getDownloadUrl: (filename) => `${API_URL}/library/download/${filename}`,
+}
+
 export default api
 

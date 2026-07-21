@@ -15,6 +15,7 @@ import adminRoutes from './routes/adminRoutes.js'
 import courseAdminRoutes from './routes/courseAdminRoutes.js'
 import progressRoutes from './routes/progressRoutes.js'
 import aiRoutes from './routes/aiRoutes.js'
+import libraryRoutes from './routes/libraryRoutes.js'
 
 // Load environment variables
 dotenv.config()
@@ -62,6 +63,7 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/course-admin', courseAdminRoutes)
 app.use('/api/progress', progressRoutes)
 app.use('/api/ai', aiRoutes)
+app.use('/api/library', libraryRoutes)
 
 // Health check
 app.get('/api/health', (req, res) => {

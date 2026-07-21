@@ -3,6 +3,7 @@ import Layout from '../components/Layout'
 import { useAuth } from '../context/AuthContext'
 import GuestRestrictionModal from '../components/GuestRestrictionModal'
 import toast from 'react-hot-toast'
+import { libraryAPI } from '../services/api'
 
 const Library = () => {
   const { user } = useAuth()
@@ -85,22 +86,32 @@ const Library = () => {
     }
   ]
 
-  // Load from localStorage & merge with defaults
-  useEffect(() => {
-    const saved = localStorage.getItem('studyhub_user_library_records')
-    let parsedOrEmpty = []
-    if (saved) {
-      try {
-        parsedOrEmpty = JSON.parse(saved)
-        if (!Array.isArray(parsedOrEmpty)) {
-          parsedOrEmpty = []
-        }
-      } catch (err) {
-        console.error('Error parsing studyhub_user_library_records:', err)
-        parsedOrEmpty = []
-      }
+  // Load materials from server & merge with defaults
+  const loadMaterialsList = async () => {
+    try {
+      const response = await libraryAPI.getMaterials()
+      // Map database fields to align with library rendering
+      const dbMaterials = response.data.map(item => ({
+        id: item._id,
+        courseCode: item.courseCode,
+        title: item.title,
+        yearRange: item.yearRange,
+        type: item.type,
+        description: item.description,
+        uploader: item.uploader || 'Anonymous Student',
+        uploadedAt: new Date(item.createdAt).toLocaleDateString(),
+        fileSize: item.fileSize,
+        fileUrl: item.fileUrl
+      }))
+      setMaterials([...defaultMaterials, ...dbMaterials])
+    } catch (error) {
+      console.error('Error loading materials:', error)
+      setMaterials(defaultMaterials)
     }
-    setMaterials([...defaultMaterials, ...parsedOrEmpty])
+  }
+
+  useEffect(() => {
+    loadMaterialsList()
   }, [])
 
   const handleFileChange = (e) => {
@@ -118,7 +129,7 @@ const Library = () => {
     }
   }
 
-  const handleUploadSubmit = (e) => {
+  const handleUploadSubmit = async (e) => {
     e.preventDefault()
 
     if (user?.isGuest) {
@@ -139,38 +150,26 @@ const Library = () => {
     }
 
     setIsUploading(true)
+    const uploadToast = toast.loading('Uploading study material...')
 
-    // Simulate uploading delay
-    setTimeout(() => {
-      const newRecord = {
-        id: 'u_' + Date.now(),
-        courseCode: formData.courseCode.toUpperCase(),
-        title: formData.title,
-        yearRange: formData.yearRange,
-        type: formData.type,
-        description: formData.description || 'Contributed past questions/study materials.',
-        uploader: user?.fullName || 'Anonymous Student',
-        uploadedAt: new Date().toLocaleDateString(),
-        fileSize: (selectedFile.size / (1024 * 1024)).toFixed(1) + ' MB'
-      }
+    try {
+      const data = new FormData()
+      data.append('courseCode', formData.courseCode)
+      data.append('title', formData.title)
+      data.append('yearRange', formData.yearRange)
+      data.append('type', formData.type)
+      data.append('description', formData.description)
+      data.append('file', selectedFile)
 
-      let savedRecords = []
-      try {
-        const saved = localStorage.getItem('studyhub_user_library_records')
-        if (saved) {
-          savedRecords = JSON.parse(saved)
-          if (!Array.isArray(savedRecords)) {
-            savedRecords = []
-          }
-        }
-      } catch (err) {
-        console.error('Error parsing studyhub_user_library_records during submit:', err)
-        savedRecords = []
-      }
-      const updatedRecords = [...savedRecords, newRecord]
-      localStorage.setItem('studyhub_user_library_records', JSON.stringify(updatedRecords))
-
-      setMaterials([...defaultMaterials, ...updatedRecords])
+      await libraryAPI.uploadMaterial(data)
+      
+      toast.dismiss(uploadToast)
+      toast.success('Material contributed successfully!')
+      
+      // Reload from server
+      await loadMaterialsList()
+      
+      // Clear form
       setFormData({
         courseCode: '',
         title: '',
@@ -180,16 +179,36 @@ const Library = () => {
       })
       setSelectedFile(null)
       setShowUploadForm(false)
+    } catch (error) {
+      toast.dismiss(uploadToast)
+      console.error('Upload failed:', error)
+      toast.error(error.response?.data?.message || 'Failed to upload material. Please try again.')
+    } finally {
       setIsUploading(false)
-      toast.success('Material contributed successfully!')
-    }, 1500)
+    }
   }
 
-  const handleDownload = (fileName) => {
-    toast.loading(`Retrieving document ${fileName}...`, { duration: 1000 })
-    setTimeout(() => {
-      toast.success('Download complete!')
-    }, 1200)
+  const handleDownload = (item) => {
+    if (!item.fileUrl) {
+      // Mock items trigger simulated successful download
+      toast.loading(`Retrieving document ${item.title}...`, { duration: 1000 })
+      setTimeout(() => {
+        toast.success('Download complete!')
+      }, 1200)
+      return
+    }
+
+    const filename = item.fileUrl.split('/').pop()
+    const downloadUrl = libraryAPI.getDownloadUrl(filename)
+
+    // Trigger browser to download the file directly via express attachment response
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.setAttribute('download', `${item.title}.pdf`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    toast.success('Downloading document...')
   }
 
   // Filter Logic
@@ -402,7 +421,7 @@ const Library = () => {
                 <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0 gap-3">
                   <span className="text-xs font-bold text-gray-400">{item.fileSize}</span>
                   <button
-                    onClick={() => handleDownload(item.title)}
+                    onClick={() => handleDownload(item)}
                     className="px-4 py-2 border border-purple-200 text-purple-brand font-semibold rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors text-xs"
                   >
                     Download
