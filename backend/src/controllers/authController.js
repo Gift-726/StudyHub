@@ -3,6 +3,7 @@ import { validationResult } from 'express-validator'
 import User from '../models/User.js'
 import mongoose from 'mongoose'
 import { verifyGoogleToken } from '../services/googleAuthService.js'
+import crypto from 'crypto'
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -123,7 +124,11 @@ const googleLogin = async (req, res) => {
 
     // Verify token
     const payload = await verifyGoogleToken(token)
-    const { email, name } = payload
+    const { email, name, email_verified } = payload
+
+    if (email_verified !== true) {
+      return res.status(400).json({ message: 'Google account email is not verified' })
+    }
 
     if (!email) {
       return res.status(400).json({ message: 'Email not returned by Google' })
@@ -150,7 +155,7 @@ const googleLogin = async (req, res) => {
     // User does not exist, check if we have the extra info to register them
     if (faculty && department && level) {
       // Generate a secure random password
-      const randomPassword = Math.random().toString(36).slice(-10) + 'Google1!'
+      const randomPassword = crypto.randomBytes(8).toString('hex') + 'Google1!'
 
       user = await User.create({
         email: normalizedEmail,

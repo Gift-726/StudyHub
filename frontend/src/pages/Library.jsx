@@ -103,7 +103,7 @@ const Library = () => {
         fileSize: item.fileSize,
         fileUrl: item.fileUrl
       }))
-      setMaterials([...defaultMaterials, ...dbMaterials])
+      setMaterials([...dbMaterials, ...defaultMaterials])
     } catch (error) {
       console.error('Error loading materials:', error)
       setMaterials(defaultMaterials)
@@ -190,25 +190,22 @@ const Library = () => {
 
   const handleDownload = (item) => {
     if (!item.fileUrl) {
-      // Mock items trigger simulated successful download
-      toast.loading(`Retrieving document ${item.title}...`, { duration: 1000 })
-      setTimeout(() => {
-        toast.success('Download complete!')
-      }, 1200)
+      toast.error('This sample resource item does not have a PDF file attached yet.')
       return
     }
 
-    const filename = item.fileUrl.split('/').pop()
+    // Extract filename or ID for backend download proxy endpoint
+    const filename = item._id || item.fileUrl.split('/').pop()
     const downloadUrl = libraryAPI.getDownloadUrl(filename)
 
     // Trigger browser to download the file directly via express attachment response
     const link = document.createElement('a')
     link.href = downloadUrl
-    link.setAttribute('download', `${item.title}.pdf`)
+    link.setAttribute('download', `${item.title || item.courseCode}.pdf`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    toast.success('Downloading document...')
+    toast.success(`Downloading ${item.courseCode} ${item.title}...`)
   }
 
   // Filter Logic

@@ -104,7 +104,7 @@ const CourseAdminRoute = ({ children }) => {
 
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '540932663529-bdj82e71mo8cer1mch01cu9cs52kck1o.apps.googleusercontent.com'
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
 
 function App() {
   return (

@@ -34,15 +34,19 @@ const runMigration = async () => {
     process.exit(1)
   }
 
-  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+  const cloudName = (process.env.CLOUDINARY_CLOUD_NAME || '').trim()
+  const apiKey = (process.env.CLOUDINARY_API_KEY || '').trim()
+  const apiSecret = (process.env.CLOUDINARY_API_SECRET || '').trim()
+
+  if (!cloudName || !apiKey || !apiSecret) {
     console.error('Error: Cloudinary credentials are not set in environment variables.')
     process.exit(1)
   }
 
   cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
   })
 
   // Folder containing your downloaded Google Drive files
@@ -78,8 +82,11 @@ const runMigration = async () => {
       const courseMatch = fileName.match(/([A-Z]{3})\s*(\d{3})/i)
       const courseCode = courseMatch ? `${courseMatch[1].toUpperCase()} ${courseMatch[2]}` : 'GENERAL'
 
-      // Extract Session/Year (e.g., "2021/2022" or "2022-2023")
-      const yearMatch = fileName.match(/(\d{4})[/-](\d{4})/ || /(\d{4})/)
+      // Extract Session/Year (e.g., "2021/2022" or "2022-2023" or "2022")
+      let yearMatch = fileName.match(/(\d{4})[/-](\d{4})/)
+      if (!yearMatch) {
+        yearMatch = fileName.match(/\d{4}/)
+      }
       const yearRange = yearMatch ? yearMatch[0] : '2023/2024'
 
       // Clean up title (remove extension and replace underscores/dashes)
@@ -97,22 +104,14 @@ const runMigration = async () => {
       console.log(`- Size: ${fileSizeMb}`)
       console.log('- Uploading to Cloudinary...')
 
-      // Upload file to Cloudinary
       const uploadResult = await new Promise((resolve, reject) => {
         cloudinary.uploader.upload(filePath, {
-          resource_type: 'image', // Use 'image' for PDFs as Cloudinary treats them as document/image resources or 'raw'
+          resource_type: 'raw', // always treat PDFs as raw documents
           folder: 'studyhub_library',
-          public_id: path.basename(fileName, '.pdf'),
+          public_id: path.basename(fileName, '.pdf').replace(/[^a-zA-Z0-9]/g, '_'),
         }, (error, result) => {
           if (error) {
-            // Retry as 'raw' file type if image upload fails
-            cloudinary.uploader.upload(filePath, {
-              resource_type: 'raw',
-              folder: 'studyhub_library',
-            }, (rawError, rawResult) => {
-              if (rawError) reject(rawError)
-              else resolve(rawResult)
-            })
+            reject(error)
           } else {
             resolve(result)
           }
@@ -121,6 +120,19 @@ const runMigration = async () => {
 
       const fileUrl = uploadResult.secure_url
       console.log(`- Cloud URL: ${fileUrl}`)
+
+      // Check if material already exists in DB
+      const existingMaterial = await Material.findOne({
+        $or: [
+          { fileUrl },
+          { courseCode, title: cleanTitle }
+        ]
+      })
+
+      if (existingMaterial) {
+        console.log(`- Material already exists: "${cleanTitle}". Skipping DB registration.`)
+        continue
+      }
 
       // Create record in MongoDB
       await Material.create({
@@ -145,6 +157,7 @@ const runMigration = async () => {
 
   } catch (error) {
     console.error('Migration failed with error:', error)
+    process.exitCode = 1
   } finally {
     mongoose.connection.close()
   }

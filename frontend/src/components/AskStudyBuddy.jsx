@@ -107,6 +107,26 @@ const AskStudyBuddy = ({ isOpen, onClose, initialQuery = '' }) => {
     return "That's an interesting question! To give you a detailed explanation, make sure to set the `GEMINI_API_KEY` in the backend environment file. For now, remember that consistent practice, checking past questions, and breaking down complex formulas into smaller parts is the key to mastering this course."
   }
 
+  // Sanitize LaTeX math expressions into clean readable text
+  const formatMessageText = (rawText) => {
+    if (!rawText) return ''
+    let cleaned = rawText
+      // Convert \frac{a}{b} -> (a) / (b)
+      .replace(/\\frac\s*\{([^}]+)\}\s*\{([^}]+)\}/g, '($1) / ($2)')
+      // Convert \text{...} -> ...
+      .replace(/\\text\s*\{([^}]+)\}/g, '$1')
+      // Convert \Rightarrow -> =>
+      .replace(/\\Rightarrow/g, '=>')
+      // Strip math enclosing $ signs
+      .replace(/\$([^$]+)\$/g, '$1')
+      // Clean up remaining single backslashes before command names
+      .replace(/\\([a-zA-Z]+)/g, '$1')
+
+    return cleaned.split('**').map((part, i) => 
+      i % 2 === 1 ? <strong key={i} className="font-extrabold">{part}</strong> : part
+    )
+  }
+
   if (!isOpen) return null
 
   return (
@@ -138,9 +158,8 @@ const AskStudyBuddy = ({ isOpen, onClose, initialQuery = '' }) => {
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed shadow-sm ${msg.sender === 'user' ? 'bg-purple-brand text-white rounded-tr-none' : 'bg-white border border-gray-200 text-gray-800 rounded-tl-none'}`}>
-              {/* Parse markdown-like bold indicators */}
               <p className="whitespace-pre-line">
-                {msg.text.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} className="font-extrabold">{part}</strong> : part)}
+                {formatMessageText(msg.text)}
               </p>
             </div>
           </div>

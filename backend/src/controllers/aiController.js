@@ -22,7 +22,7 @@ export const askStudyBuddy = async (req, res, next) => {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => {
       controller.abort()
-    }, 5000)
+    }, 15000)
 
     try {
       const response = await fetch(geminiUrl, {
@@ -36,7 +36,11 @@ export const askStudyBuddy = async (req, res, next) => {
             {
               parts: [
                 {
-                  text: `You are StudyBuddy, a helpful academic tutor for students at FUTA (Federal University of Technology, Akure). Keep your responses concise, highly informative, and formatted in markdown. Solve math/science problems step-by-step. Here is the student prompt: ${prompt}`
+                  text: `You are StudyBuddy, a helpful academic tutor for students at FUTA (Federal University of Technology, Akure). Keep your responses concise, highly informative, and formatted in clean markdown. Solve math/science problems step-by-step. 
+
+CRITICAL FORMATTING RULE: Do NOT use LaTeX tags or symbols such as \\frac{...}, \\text{...}, or $...$. Format all math, fractions, and equations using clean, readable plain text and standard operators (e.g. use "x₁ = 2 hours", "(250 km - 100 km) / (5 hrs - 2 hrs) = 50 km/hr", "x^2 - 4").
+
+Here is the student prompt: ${prompt}`
                 }
               ]
             }
@@ -55,11 +59,11 @@ export const askStudyBuddy = async (req, res, next) => {
     } catch (apiError) {
       clearTimeout(timeoutId)
       if (apiError.name === 'AbortError') {
-        console.error('Gemini API request timed out (5s). Using backend fallback.')
+        console.error('Gemini API request timed out (15s). Using backend fallback.')
       } else {
         console.error('Gemini API request failed. Using backend fallback:', apiError.message)
       }
-      const fallbackReply = getHeuristicReply(prompt)
+      const fallbackReply = getHeuristicReply(prompt, !apiKey)
       return res.json({ reply: fallbackReply })
     }
   } catch (error) {
@@ -67,21 +71,25 @@ export const askStudyBuddy = async (req, res, next) => {
   }
 }
 
-// Simple fallback keyword replies for offline development
-const getHeuristicReply = (prompt) => {
+// Simple fallback keyword replies for offline development or timeouts
+const getHeuristicReply = (prompt, isKeyMissing = false) => {
   const query = prompt.toLowerCase()
 
   if (query.includes('limit') || query.includes('lim (x')) {
-    return "To calculate **lim (x → 2) (x² - 4) / (x - 2)**:\n\n1. Factoring the numerator gives: $(x - 2)(x + 2)$.\n2. We write the expression as: $\\frac{(x-2)(x+2)}{x-2}$.\n3. The $(x-2)$ term in the numerator and denominator cancel out.\n4. This leaves $(x + 2)$.\n5. Substitute $x = 2$: $2 + 2 = 4$.\n\nHence, the limit resolves to **4**."
+    return "To calculate **lim (x → 2) (x² - 4) / (x - 2)**:\n\n1. Factoring the numerator gives: (x - 2)(x + 2).\n2. We write the expression as: (x-2)(x+2) / (x-2).\n3. The (x-2) term in the numerator and denominator cancel out.\n4. This leaves (x + 2).\n5. Substitute x = 2: 2 + 2 = 4.\n\nHence, the limit resolves to **4**."
   }
 
   if (query.includes('hybridisation') || query.includes('ch4') || query.includes('methane')) {
-    return "Methane ($CH_4$) possesses **sp³ hybridisation**:\n\n* The central carbon atom has 4 valence electrons and forms 4 single $\\sigma$-bonds with hydrogen atoms.\n* According to VSEPR theory, these 4 bonding pairs arrange themselves to minimize repulsion, yielding a **tetrahedral molecular geometry** with bond angles of exactly **109.5°**."
+    return "Methane (CH4) possesses **sp³ hybridisation**:\n\n* The central carbon atom has 4 valence electrons and forms 4 single σ-bonds with hydrogen atoms.\n* According to VSEPR theory, these 4 bonding pairs arrange themselves to minimize repulsion, yielding a **tetrahedral molecular geometry** with bond angles of exactly **109.5°**."
   }
 
   if (query.includes('sin(θ) = 3/5') || query.includes('second quadrant') || query.includes('cos(θ)')) {
-    return "For **sin(θ) = 3/5** in the second quadrant (90° < θ < 180°):\n\n1. Use the Pythagorean identity: $sin^2(\\theta) + cos^2(\\theta) = 1$.\n2. $(3/5)^2 + cos^2(\\theta) = 1 \\Rightarrow 9/25 + cos^2(\\theta) = 1$.\n3. $cos^2(\\theta) = 1 - 9/25 = 16/25$.\n4. Taking square root: $cos(\\theta) = \\pm 4/5$.\n5. Since cosine is **negative** in the second quadrant (quadrant II), we have: **cos(θ) = -4/5**."
+    return "For **sin(θ) = 3/5** in the second quadrant (90° < θ < 180°):\n\n1. Use the Pythagorean identity: sin²(θ) + cos²(θ) = 1.\n2. (3/5)² + cos²(θ) = 1 => 9/25 + cos²(θ) = 1.\n3. cos²(θ) = 1 - 9/25 = 16/25.\n4. Taking square root: cos(θ) = ± 4/5.\n5. Since cosine is **negative** in the second quadrant (quadrant II), we have: **cos(θ) = -4/5**."
   }
 
-  return "I am **StudyBuddy AI**. To get custom AI answers in real-time, please set up the `GEMINI_API_KEY` in the server `.env` file! For now, remember to review past papers, formulate clear steps, and practice daily. Let me know what specific course you are working on!"
+  if (isKeyMissing) {
+    return "I am **StudyBuddy AI**. To get custom AI answers in real-time, please set up the `GEMINI_API_KEY` in the server `.env` file! For now, remember to review past papers, formulate clear steps, and practice daily."
+  }
+
+  return "I am **StudyBuddy AI**. I am currently receiving a high volume of study requests or the prompt took too long to process. Please try breaking your question down into a smaller or more specific prompt!"
 }

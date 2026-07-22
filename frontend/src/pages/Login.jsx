@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 import logo from '../assets/logo.png'
 import authBg from '../assets/authBg.png'
-import { GoogleLogin } from '@react-oauth/google'
+import { useGoogleLogin } from '@react-oauth/google'
 import { faculties, levels } from '../utils/faculties'
 
 const Login = () => {
@@ -95,31 +95,37 @@ const Login = () => {
     }
   }
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    setLoading(true)
-    try {
-      const token = credentialResponse.credential
-      const result = await googleLogin({ token })
+  // Google OAuth Login Hook (Option B: Access Token Flow)
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setLoading(true)
+      try {
+        const token = tokenResponse.access_token
+        const result = await googleLogin({ token })
 
-      if (result.success) {
-        if (result.needRegistrationInfo) {
-          // Open complete profile modal
-          setTempGoogleToken(token)
-          setGoogleUserEmail(result.email)
-          setShowGoogleRegisterModal(true)
+        if (result.success) {
+          if (result.needRegistrationInfo) {
+            // Open complete profile modal
+            setTempGoogleToken(token)
+            setGoogleUserEmail(result.email)
+            setShowGoogleRegisterModal(true)
+          } else {
+            toast.success('Logged in successfully with Google!')
+            navigate('/dashboard')
+          }
         } else {
-          toast.success('Logged in successfully with Google!')
-          navigate('/dashboard')
+          toast.error(result.message || 'Google authentication failed')
         }
-      } else {
-        toast.error(result.message || 'Google authentication failed')
+      } catch (error) {
+        toast.error('An error occurred during Google sign-in.')
+      } finally {
+        setLoading(false)
       }
-    } catch (error) {
-      toast.error('An error occurred during Google sign-in.')
-    } finally {
-      setLoading(false)
+    },
+    onError: () => {
+      toast.error('Google Sign In was unsuccessful. Try again.')
     }
-  }
+  })
 
   const handleGoogleRegisterSubmit = async (e) => {
     e.preventDefault()
@@ -149,10 +155,6 @@ const Login = () => {
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleGoogleError = () => {
-    toast.error('Google Sign In was unsuccessful. Try again.')
   }
 
   return (
@@ -235,7 +237,7 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Right Column: Form Container (visible on all screens, centered) */}
+        {/* Right Column: Form Container */}
         <div className="flex-1 flex items-center justify-center p-4 sm:p-5 md:p-6 lg:p-12 h-screen overflow-hidden">
           <div className="max-w-[500px] w-full h-auto lg:h-full bg-white/95 backdrop-blur-md border border-white/30 shadow-2xl shadow-black/25 rounded-2xl px-5 pb-5 pt-8 sm:px-6 sm:pb-6 sm:pt-10 flex flex-col justify-between overflow-y-auto animate-fade-in-up scrollbar-thin">
             {/* Header */}
@@ -258,7 +260,6 @@ const Login = () => {
 
             {/* Form Content */}
             <div className="flex-1 flex flex-col">
-
               <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                 {/* Email */}
                 <div className="flex flex-col gap-1.5">
@@ -382,22 +383,25 @@ const Login = () => {
               {/* Separator */}
               <div className="flex items-center my-4">
                 <div className="flex-grow border-t border-gray-150" />
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 select-none">or authenticate with</span>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 select-none">or</span>
                 <div className="flex-grow border-t border-gray-150" />
               </div>
 
-              {/* Google Login Button */}
-              <div className="flex justify-center w-full shadow-sm hover:shadow-md transition-shadow rounded-xl overflow-hidden border border-gray-150 bg-white">
-                <GoogleLogin 
-                  onSuccess={handleGoogleSuccess} 
-                  onError={handleGoogleError} 
-                  useOneTap 
-                  theme="outline"
-                  size="large"
-                  width="100%"
-                  text="continue_with"
-                />
-              </div>
+              {/* Custom Google Login Button (Option B) */}
+              <button
+                type="button"
+                onClick={() => handleGoogleLogin()}
+                disabled={loading}
+                className="w-full py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 flex justify-center items-center gap-3 shadow-sm"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.85z" fill="#FBBC05"/>
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.85c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+                <span>Continue with Google</span>
+              </button>
             </div>
 
             {/* Terms */}

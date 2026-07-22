@@ -116,7 +116,7 @@ export const libraryAPI = {
   uploadMaterial: (formData) => api.post('/library/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
-  getDownloadUrl: (filename) => `${API_URL}/library/download/${filename}`,
+  getDownloadUrl: (filename) => `${API_URL}/library/download/${encodeURIComponent(filename)}`,
 }
 
 export default api

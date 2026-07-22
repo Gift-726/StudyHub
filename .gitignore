@@ -27,7 +27,11 @@ yarn-error.log*
 .idea/
 *.swp
 *.swo
-*~
+# Uploads & Temporary Import Data
+backend/uploads/
+backend/import-temp/
+frontend/dist/
+dist/
 
 # OS
 Thumbs.db
