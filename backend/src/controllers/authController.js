@@ -226,4 +226,45 @@ const guestLogin = async (req, res) => {
   }
 }
 
-export { register, login, googleLogin, getMe, guestLogin }
+// @desc    Update current user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+const updateProfile = async (req, res) => {
+  try {
+    if (req.user && req.user.isGuest) {
+      return res.status(400).json({ message: 'Guest accounts cannot update profile details.' })
+    }
+
+    const user = await User.findById(req.user._id)
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    const { fullName, faculty, department, level, newPassword } = req.body
+
+    if (fullName) user.fullName = fullName
+    if (faculty) user.faculty = faculty
+    if (department) user.department = department
+    if (level) user.level = level
+
+    if (newPassword && newPassword.trim().length >= 6) {
+      user.password = newPassword
+    }
+
+    const updatedUser = await user.save()
+
+    res.json({
+      _id: updatedUser._id,
+      fullName: updatedUser.fullName,
+      email: updatedUser.email,
+      faculty: updatedUser.faculty,
+      department: updatedUser.department,
+      level: updatedUser.level,
+      isVerified: updatedUser.isVerified,
+    })
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'Error updating profile' })
+  }
+}
+
+export { register, login, googleLogin, getMe, guestLogin, updateProfile }

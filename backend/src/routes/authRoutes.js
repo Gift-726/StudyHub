@@ -1,6 +1,6 @@
 import express from 'express'
 import { body } from 'express-validator'
-import { register, login, googleLogin, getMe, guestLogin } from '../controllers/authController.js'
+import { register, login, googleLogin, getMe, guestLogin, updateProfile } from '../controllers/authController.js'
 import { forgotPassword, verifyOTP, resetPassword } from '../controllers/passwordController.js'
 import { protect } from '../middleware/auth.js'
 
@@ -42,6 +42,7 @@ router.post('/login', loginValidation, login)
 router.post('/google', googleLogin)
 router.post('/guest-login', guestLogin)
 router.get('/me', protect, getMe)
+router.put('/profile', protect, updateProfile)
 
 // Password reset routes
 router.post('/forgot-password', forgotPasswordValidation, forgotPassword)

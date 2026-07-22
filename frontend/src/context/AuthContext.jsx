@@ -204,6 +204,20 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem('guestId')
   }
 
+  const updateProfile = async (profileData) => {
+    try {
+      const response = await authAPI.updateProfile(profileData)
+      setUser(prev => ({ ...prev, ...response.data }))
+      return { success: true }
+    } catch (error) {
+      console.error('Update profile failed:', error)
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to update profile',
+      }
+    }
+  }
+
   const value = {
     user,
     token,
@@ -212,6 +226,7 @@ export const AuthProvider = ({ children }) => {
     googleLogin,
     register,
     loginAsGuest,
+    updateProfile,
     logout,
   }
 

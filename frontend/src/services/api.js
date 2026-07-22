@@ -46,6 +46,7 @@ export const authAPI = {
   googleLogin: (tokenData) => api.post('/auth/google', tokenData),
   getMe: () => api.get('/auth/me'),
   guestLogin: () => api.post('/auth/guest-login'),
+  updateProfile: (profileData) => api.put('/auth/profile', profileData),
 }
 
 // Dashboard API
