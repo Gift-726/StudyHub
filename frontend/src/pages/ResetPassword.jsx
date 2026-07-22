@@ -58,7 +58,6 @@ const ResetPassword = () => {
 
       if (response.data.success) {
         toast.success('Password reset successfully!')
-        // Auto-login the user
         const loginResult = await login(email, formData.password)
         if (loginResult.success) {
           navigate('/dashboard')
@@ -74,142 +73,159 @@ const ResetPassword = () => {
   }
 
   return (
-    <div className="flex w-full h-screen bg-[#faf9f6] overflow-hidden">
-      {/* Left side with background image */}
+    <div className="flex w-full h-screen bg-[#faf9f6] overflow-hidden selection:bg-purple-500 selection:text-white">
+      {/* Left Column: Branding Showcase */}
       <div className="hidden lg:flex flex-1 relative h-screen overflow-hidden">
-        <img 
-          src={authBg} 
-          alt="Students studying" 
-          className="w-full h-full object-cover" 
+        <img
+          src={authBg}
+          alt="Students studying"
+          className="w-full h-full object-cover"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#2c1854]/95 via-[#4B2E83]/80 to-purple-950/40" />
+
+        <div className="absolute inset-0 p-12 flex flex-col justify-between z-10 text-white">
+          <Link to="/" className="flex items-center gap-3 w-fit group">
+            <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center p-2 group-hover:scale-105 transition-transform">
+              <img src={logo} alt="StudyHub logo" className="w-full h-full object-contain" />
+            </div>
+            <span className="text-xl font-black tracking-tight font-heading">StudyHub</span>
+          </Link>
+
+          <div className="max-w-md space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-bold uppercase tracking-wider text-purple-200">
+              🔑 New Password Setup
+            </div>
+            <h2 className="text-3xl font-extrabold font-heading leading-tight">
+              Create a Strong Password
+            </h2>
+            <p className="text-sm text-white/80 font-medium leading-relaxed">
+              Choose a secure password of at least 6 characters to keep your academic profile and notes safe.
+            </p>
+          </div>
+
+          <div className="text-xs text-white/50 font-medium">
+            © 2026 StudyHub. All rights reserved.
+          </div>
+        </div>
       </div>
 
-      {/* Right side with form */}
-      <div className="flex-1 flex flex-col bg-[#faf9f6] px-4 sm:px-6 md:px-12 lg:px-16 h-screen overflow-y-auto">
-        {/* Content - start from top on mobile, center on desktop */}
-        <div className="flex-1 flex items-start lg:items-center justify-center pt-4 sm:pt-6 lg:pt-0 pb-4 sm:pb-6">
-          <div className="max-w-md w-full">
-            {/* Header - aligned with form content */}
-            <div className="flex justify-between items-center mb-6 sm:mb-7">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <img 
-                  src={logo} 
-                  alt="Studyhub logo" 
-                  className="h-8 sm:h-10 w-auto" 
-                />
-                <span className="text-lg sm:text-xl font-bold text-purple-brand">StudyHub</span>
-              </div>
-              <Link 
-                to="/login" 
-                className="text-sm sm:text-base text-black font-normal hover:opacity-70 transition-opacity"
-              >
-                Log in
+      {/* Right Column: Form Container */}
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-12 h-screen overflow-y-auto">
+        <div className="max-w-[480px] w-full bg-white/95 backdrop-blur-md border border-white/30 shadow-2xl shadow-black/20 rounded-2xl px-6 py-8 sm:p-10 flex flex-col justify-between animate-fade-in-up">
+          {/* Header */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-6 lg:hidden">
+              <Link to="/" className="flex items-center gap-2">
+                <img src={logo} alt="StudyHub" className="h-8 w-auto" />
+                <span className="text-lg font-bold text-[#4B2E83]">StudyHub</span>
               </Link>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-6 sm:mb-7 leading-tight">
-              Reset Password
+            <h1 className="text-2xl sm:text-3xl font-black font-heading text-gray-900 tracking-tight mb-2">
+              Set New Password
             </h1>
+            <p className="text-xs sm:text-sm text-gray-500 font-medium leading-relaxed">
+              Create a new password for <span className="font-bold text-gray-800">{email}</span>
+            </p>
+          </div>
 
-            <form className="flex flex-col gap-4 sm:gap-6" onSubmit={handleSubmit}>
-              {/* New Password */}
-              <div className="flex flex-col gap-2">
-                <label htmlFor="password" className="text-sm font-medium text-black leading-normal">
-                  Enter New Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    minLength={6}
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2.5 sm:py-3 pr-12 border border-black rounded bg-white text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors leading-normal"
-                    placeholder="Enter your new password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-black transition-colors focus:outline-none"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showPassword ? (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                      </svg>
-                    ) : (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Confirm Password */}
-              <div className="flex flex-col gap-2">
-                <label htmlFor="confirmPassword" className="text-sm font-medium text-black leading-normal">
-                  Confirm New Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    required
-                    minLength={6}
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2.5 sm:py-3 pr-12 border border-black rounded bg-white text-base text-black placeholder:text-gray-500 focus:outline-none focus:border-gray-700 transition-colors leading-normal"
-                    placeholder="Confirm your new password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-black transition-colors focus:outline-none"
-                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showConfirmPassword ? (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                      </svg>
-                    ) : (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 sm:py-3.5 btn-purple text-white rounded border-none text-base font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2 leading-normal"
-              >
-                {loading ? 'Resetting...' : 'Reset'}
-              </button>
-
-              {/* Back to sign in */}
-              <div className="text-center mt-4">
-                <Link 
-                  to="/login" 
-                  className="text-sm text-black hover:opacity-70 transition-opacity leading-normal"
+          {/* Form */}
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+            {/* New Password */}
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="password" className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                New Password
+              </label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </span>
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all"
+                  placeholder="At least 6 characters"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
                 >
-                  Back to sign in
-                </Link>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showPassword ? "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" : "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"} />
+                  </svg>
+                </button>
               </div>
+            </div>
 
-              {/* Terms */}
-              <p className="text-xs text-gray-600 text-center mt-4 leading-relaxed">
-                Terms of Service and Privacy Policy
-              </p>
-            </form>
+            {/* Confirm Password */}
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="confirmPassword" className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                Confirm New Password
+              </label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </span>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl bg-gray-50/50 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white focus:border-[#4B2E83] focus:ring-4 focus:ring-[#4B2E83]/10 transition-all"
+                  placeholder="Re-enter new password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showConfirmPassword ? "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" : "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"} />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3.5 bg-gradient-to-r from-[#4B2E83] to-[#5e3da1] text-white rounded-xl font-bold text-xs shadow-md shadow-[#4B2E83]/20 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed transition-all mt-2 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <span>Updating Password...</span>
+              ) : (
+                <>
+                  <span>Reset Password &amp; Sign In</span>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Footer Back Link */}
+          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 text-xs font-bold text-[#4B2E83] hover:underline"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span>Back to Sign In</span>
+            </Link>
           </div>
         </div>
       </div>
@@ -218,4 +234,3 @@ const ResetPassword = () => {
 }
 
 export default ResetPassword
-
