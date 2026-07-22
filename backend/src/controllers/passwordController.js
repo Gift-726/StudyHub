@@ -59,20 +59,19 @@ const forgotPassword = async (req, res) => {
       await sendOTPEmail(email, otpCode)
       console.log(`✅ OTP email sent successfully to ${email}`)
     } catch (emailError) {
-      console.error('❌ Failed to send email:', emailError.message)
-      // Log OTP to console as fallback for development
+      console.error('❌ Failed to send email:', emailError.message || emailError)
+      
+      // Log OTP to console as fallback
       console.log('\n========================================')
       console.log(`📧 PASSWORD RESET OTP FOR: ${email}`)
       console.log(`🔐 OTP CODE: ${otpCode}`)
       console.log(`🔑 Reset Token: ${resetToken}`)
       console.log('========================================\n')
-      
-      // Still return success but log the error
-      // In production, you might want to return an error here
-      if (process.env.NODE_ENV === 'production') {
+
+      if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_DEV_OTP) {
         return res.status(500).json({
           success: false,
-          message: 'Failed to send email. Please try again later.',
+          message: 'Unable to send OTP email at this time. Please check backend email settings or contact support.',
         })
       }
     }
@@ -80,8 +79,7 @@ const forgotPassword = async (req, res) => {
     res.json({
       success: true,
       message: 'OTP code sent to your email',
-      // Return OTP in development for testing (remove in production)
-      otp: process.env.NODE_ENV === 'development' ? otpCode : undefined,
+      otp: (process.env.NODE_ENV === 'development' || process.env.ALLOW_DEV_OTP) ? otpCode : undefined,
     })
   } catch (error) {
     console.error('Forgot password error:', error)
