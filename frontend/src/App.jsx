@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import LoadingSpinner from './components/LoadingSpinner'
+import Home from './pages/Home'
 import SignUp from './pages/SignUp'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -114,7 +115,7 @@ function App() {
         <div className="w-full min-h-screen">
           <Toaster position="top-right" />
           <Routes>
-            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/" element={<Home />} />
             <Route 
               path="/signup" 
               element={
