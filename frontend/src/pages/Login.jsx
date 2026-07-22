@@ -178,12 +178,12 @@ const Login = () => {
         
         {/* Left Column: Teaser details (visible on desktop) */}
         <div className="hidden lg:flex flex-1 flex-col justify-between p-12 text-white select-none">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md">
+          <Link to="/" className="flex items-center gap-3 w-fit hover:opacity-90 transition-opacity cursor-pointer group">
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
               <img src={logo} alt="Studyhub logo" className="h-6 w-auto" />
             </div>
             <span className="text-xl font-bold tracking-wider uppercase text-white">StudyHub</span>
-          </div>
+          </Link>
 
           <div className="max-w-lg mb-10 space-y-6 animate-fade-in-up">
             <span className="inline-block px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-wider">
